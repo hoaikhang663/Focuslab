@@ -131,7 +131,16 @@
               <div class="audio-youtube-player-host" id="audio-youtube-player-host" aria-hidden="true"></div>
             </section>
           </div>
-          <span class="topbar-date" id="today-label"></span><span class="topbar-avatar" aria-hidden="true">FF</span>
+          <span class="topbar-date" id="today-label"></span>
+          <div class="account-menu" id="account-menu">
+            <button class="topbar-avatar" id="auth-avatar-button" type="button" aria-label="Đăng nhập" aria-haspopup="true" aria-expanded="false">FF</button>
+            <section class="account-popover" id="account-popover" hidden>
+              <span class="account-popover-name" id="account-popover-name">Tài khoản</span>
+              <span class="account-popover-email" id="account-popover-email"></span>
+              <button class="account-popover-action" id="account-sign-in" type="button">Đăng nhập / Đăng ký</button>
+              <button class="account-popover-action danger-text" id="account-sign-out" type="button" hidden>Đăng xuất</button>
+            </section>
+          </div>
         </div>
       </header>
 
@@ -354,6 +363,29 @@
         <p class="schedule-form-error" id="schedule-form-error" role="alert" hidden></p>
         <div class="confirm-actions"><button class="button button-outline" id="schedule-cancel" type="button">Cancel</button><button class="button button-primary" type="submit">Save Schedule</button></div>
       </form>
+    </section>
+  </div>
+  <div class="modal-backdrop auth-modal-backdrop" id="auth-modal" hidden>
+    <section class="confirm-dialog auth-dialog" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+      <button class="auth-close" id="auth-close" type="button" aria-label="Đóng">×</button>
+      <span class="confirm-mark" aria-hidden="true">FF</span>
+      <p class="panel-kicker">FOCUSFORGE ACCOUNT</p>
+      <h2 id="auth-title">Đăng nhập</h2>
+      <p class="auth-description" id="auth-description">Đăng nhập để đồng bộ Tasks, Lịch và tiến trình Focus giữa các thiết bị.</p>
+      <button class="button button-outline auth-google" id="auth-google" type="button">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M18.2 10.2c0-.6-.1-1.2-.2-1.8H10v3.4h4.6a4 4 0 0 1-1.7 2.6v2.2h2.8c1.6-1.5 2.5-3.7 2.5-6.4Z" fill="#4285F4"/><path d="M10 18.5c2.3 0 4.2-.8 5.6-2.1l-2.8-2.2c-.8.5-1.7.8-2.8.8-2.2 0-4.1-1.5-4.8-3.5H2.3v2.3a8.5 8.5 0 0 0 7.7 4.7Z" fill="#34A853"/><path d="M5.2 11.5a5 5 0 0 1 0-3V6.2H2.3a8.5 8.5 0 0 0 0 7.6l2.9-2.3Z" fill="#FBBC05"/><path d="M10 5c1.3 0 2.4.4 3.3 1.3l2.5-2.5A8.3 8.3 0 0 0 10 1.5a8.5 8.5 0 0 0-7.7 4.7l2.9 2.3C5.9 6.5 7.8 5 10 5Z" fill="#EA4335"/></svg>
+        Đăng nhập với Google
+      </button>
+      <div class="auth-divider"><span>hoặc tiếp tục bằng email</span></div>
+      <form id="auth-form">
+        <label class="form-label" for="auth-email">Email</label>
+        <input class="text-input" id="auth-email" type="email" autocomplete="email" required>
+        <label class="form-label" for="auth-password">Mật khẩu</label>
+        <input class="text-input" id="auth-password" type="password" autocomplete="current-password" minlength="6" required>
+        <p class="auth-error" id="auth-error" role="alert" hidden></p>
+        <button class="button button-primary button-wide" id="auth-submit" type="submit">Đăng nhập</button>
+      </form>
+      <p class="auth-switch-copy"><span id="auth-switch-label">Chưa có tài khoản?</span> <button id="auth-mode-toggle" type="button">Tạo tài khoản</button></p>
     </section>
   </div>
 </body>

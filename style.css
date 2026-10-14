@@ -711,6 +711,86 @@ button, .button, .nav-link, .subtle-link, .file-button { -webkit-tap-highlight-c
   .stat-card:hover, .achievement-item:hover { transform: none; }
 }
 
+.account-menu { position: relative; }
+.topbar-avatar {
+  padding: 0;
+  overflow: hidden;
+  border-color: #48494f;
+  color: #f4c5a5;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color .18s, background-color .18s, transform .18s;
+}
+.topbar-avatar:hover { border-color: #9a7158; background: #292521; transform: translateY(-1px); }
+.topbar-avatar img, .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-avatar { overflow: hidden; }
+.account-popover {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 15;
+  display: grid;
+  width: min(280px, calc(100vw - 32px));
+  gap: 7px;
+  padding: 15px;
+  border: 1px solid #393a40;
+  border-radius: 12px;
+  background: #222327;
+  box-shadow: 0 12px 34px #0007;
+}
+.account-popover[hidden] { display: none; }
+.account-popover-name { color: #f1f1f4; font-size: 14px; font-weight: 600; }
+.account-popover-email { overflow-wrap: anywhere; color: #a5a5ac; font-size: 12px; }
+.account-popover-action {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #e8e8ec;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.account-popover-action:hover { background: #303136; }
+.auth-modal-backdrop { z-index: 40; }
+.auth-dialog { position: relative; width: min(440px, 100%); padding: 30px; }
+.auth-close {
+  position: absolute;
+  top: 12px;
+  right: 13px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #a7a7ae;
+  font-size: 24px;
+  cursor: pointer;
+}
+.auth-close:hover { background: #303136; color: #fff; }
+.auth-dialog .confirm-mark { margin-bottom: 17px; font-size: 11px; font-weight: 700; }
+.auth-dialog > .panel-kicker { margin-bottom: 6px; }
+.auth-dialog h2 { margin: 0 0 7px; color: #f4f4f6; font-size: 25px; }
+.auth-description { margin: 0 0 18px; color: #adadb4; font-size: 14px; line-height: 1.55; }
+.auth-google { width: 100%; min-height: 44px; }
+.auth-google svg { width: 18px; height: 18px; }
+.auth-google:disabled, .auth-dialog button:disabled { cursor: wait; opacity: .6; }
+.auth-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0 4px; color: #92939a; font-size: 12px; }
+.auth-divider::before, .auth-divider::after { height: 1px; flex: 1; background: #393a40; content: ""; }
+.auth-dialog .form-label { margin: 13px 0 7px; }
+.auth-dialog .text-input { min-height: 43px; }
+.auth-dialog #auth-submit { margin-top: 16px; }
+.auth-error { margin: 12px 0 0; color: #ffaaa1; font-size: 13px; line-height: 1.5; }
+.auth-switch-copy { margin: 18px 0 0; color: #a5a5ac; font-size: 13px; text-align: center; }
+.auth-switch-copy button { padding: 2px 0; border: 0; background: transparent; color: #ffb185; font: inherit; font-weight: 600; cursor: pointer; }
+.auth-switch-copy button:hover { color: #ffd0b2; text-decoration: underline; }
+@media (max-width: 430px) {
+  .auth-dialog { padding: 26px 21px; }
+}
+
 /* Lo-fi Player & Ambient Sounds widget */
 .audio-widget { position: relative; display: flex; align-items: center; }
 .audio-widget-toggle { position: relative; display: grid; width: 32px; height: 32px; flex: 0 0 32px; place-items: center; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; transition: color .18s, background .18s, border-color .18s; }
