@@ -1740,6 +1740,7 @@
     const remaining = 1 - fraction;
     stage.dataset.status = status;
     stage.style.setProperty("--focus-progress", `${progress}%`);
+    stage.style.setProperty("--focus-remaining", String(remaining));
 
     const candleHeight = Math.round(28 + remaining * 44);
     const candleTop = 150 - candleHeight;
@@ -1761,8 +1762,6 @@
     sand.setAttribute("y", String(134 - sandHeight));
     sand.setAttribute("width", String(sandWidth));
     sand.setAttribute("height", String(sandHeight));
-    $("#hourglass-top-sand").style.transform = `scaleY(${remaining})`;
-    $("#hourglass-top-sand").style.transformOrigin = "90px 87px";
   }
 
   function setTimerState(status, remainingMs) {

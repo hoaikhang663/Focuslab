@@ -879,20 +879,26 @@ button, .button, .nav-link, .subtle-link, .file-button { -webkit-tap-highlight-c
 @keyframes sand-stream { from { transform: translateY(0); } to { transform: translateY(27px); } }
 @keyframes sand-offset { from { transform: translateY(0); } to { transform: translateY(27px); } }
 .timer-controls #timer-main-action[hidden] { display: none; }
+.visualizer-switcher { margin-top: 15px; margin-bottom: 0; }
+.timer-visual-stage { --focus-ring-size: 242px; grid-template-areas: "visual"; margin-top: 12px; }
+.timer-visual-panel { position: relative; inset: auto; grid-area: visual; width: 100%; height: 100%; }
+.timer-progress.timer-visual-panel { position: relative; width: 100%; height: 100%; margin: 0; border-radius: 0; background: transparent; }
+.timer-progress.timer-visual-panel::before { position: absolute; top: 50%; left: 50%; width: var(--focus-ring-size); height: var(--focus-ring-size); border-radius: 50%; background: conic-gradient(var(--accent) var(--timer-progress),#303137 0deg); content: ""; transform: translate(-50%, -50%); }
+.timer-progress-inner { position: relative; z-index: 1; width: calc(var(--focus-ring-size) - 18px); height: calc(var(--focus-ring-size) - 18px); }
+.timer-pixel-panel { display: grid; grid-template-rows: minmax(0, auto) auto auto; justify-items: center; align-content: center; gap: 8px; box-sizing: border-box; padding: 8px 0; }
+.pixel-art { width: min(202px, 100%); height: auto; aspect-ratio: 180 / 170; justify-self: center; }
+.pixel-time, .pixel-progress { width: 100%; margin: 0; text-align: center; }
+#hourglass-top-sand { transform: scaleY(var(--focus-remaining, 1)); transform-origin: 90px 87px; transition: transform .45s cubic-bezier(.22,1,.36,1); }
 @media (max-width: 720px) {
-  .timer-visual-stage { height: 282px; }
-  .timer-progress.timer-visual-panel { width: 232px; height: 232px; }
-  .timer-progress-inner { width: 214px; height: 214px; }
+  .timer-visual-stage { --focus-ring-size: 232px; height: 286px; }
 }
 @media (max-width: 430px) {
   .visualizer-option { padding-right: 3px; padding-left: 3px; font-size: 10px; }
-  .timer-visual-stage { height: 270px; }
-  .timer-progress.timer-visual-panel { width: min(224px, calc(100vw - 100px)); height: auto; aspect-ratio: 1; }
-  .timer-progress-inner { width: calc(100% - 18px); height: calc(100% - 18px); }
-  .pixel-art { width: 188px; height: 198px; }
+  .timer-visual-stage { --focus-ring-size: min(224px, calc(100vw - 100px)); height: 280px; }
+  .pixel-art { width: min(180px, 100%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .visualizer-option, .timer-visual-panel, #candle-wax, #candle-wax-highlight, #candle-wax-shadow, #candle-wax-top, #candle-flame { transition-duration: .01ms; }
+  .visualizer-option, .timer-visual-panel, #candle-wax, #candle-wax-highlight, #candle-wax-shadow, #candle-wax-top, #candle-flame, #hourglass-top-sand { transition-duration: .01ms; }
   #timer-visual-stage[data-status="running"] #candle-flame,
   #timer-visual-stage[data-status="running"] .hourglass-grains,
   .sand-grain-two, .sand-grain-three { animation: none; }

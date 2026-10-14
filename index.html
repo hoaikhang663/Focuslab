@@ -213,15 +213,15 @@
               <div class="timer-state"><span class="timer-state-dot" id="timer-state-dot"></span><span id="timer-state">SẴN SÀNG</span></div>
               <div class="visualizer-switcher" role="group" aria-label="Chế độ hiển thị đồng hồ Focus">
                 <button class="visualizer-option is-active" type="button" data-visualizer="default" aria-pressed="true">Default</button>
-                <button class="visualizer-option" type="button" data-visualizer="candle" aria-pressed="false">Pixel Nến</button>
-                <button class="visualizer-option" type="button" data-visualizer="hourglass" aria-pressed="false">Pixel Đồng Hồ Cát</button>
+                <button class="visualizer-option" type="button" data-visualizer="candle" aria-pressed="false">Candle</button>
+                <button class="visualizer-option" type="button" data-visualizer="hourglass" aria-pressed="false">Hourglass</button>
               </div>
               <div class="timer-visual-stage" id="timer-visual-stage" data-active-visualizer="default" data-status="idle" style="--focus-progress: 0%">
                 <div class="timer-visual-panel timer-progress is-active" id="timer-progress" data-visual-panel="default" aria-hidden="false">
                   <div class="timer-progress-inner"><span id="timer-task-label">CHỌN NHIỆM VỤ</span><strong class="timer-display" id="timer-display">25:00</strong><small class="timer-progress-label" id="timer-progress-label">0% hoàn thành</small></div>
                 </div>
                 <div class="timer-visual-panel timer-pixel-panel" id="timer-visual-candle" data-visual-panel="candle" aria-hidden="true" inert>
-                  <svg class="pixel-art pixel-candle" viewBox="0 0 180 190" role="img" aria-label="Ngọn nến pixel thay đổi theo thời gian Focus">
+                  <svg class="pixel-art pixel-candle" viewBox="0 0 180 170" role="img" aria-label="Ngọn nến pixel thay đổi theo thời gian Focus">
                     <rect x="42" y="153" width="96" height="8" fill="#303039"/>
                     <rect x="54" y="161" width="72" height="5" fill="#25262d"/>
                     <rect x="67" y="78" width="46" height="72" fill="#d48655" id="candle-wax"/>
@@ -244,7 +244,7 @@
                   <small class="timer-progress-label pixel-progress">0% hoàn thành</small>
                 </div>
                 <div class="timer-visual-panel timer-pixel-panel" id="timer-visual-hourglass" data-visual-panel="hourglass" aria-hidden="true" inert>
-                  <svg class="pixel-art pixel-hourglass" viewBox="0 0 180 190" role="img" aria-label="Đồng hồ cát pixel với cát chảy theo thời gian Focus">
+                  <svg class="pixel-art pixel-hourglass" viewBox="0 0 180 170" role="img" aria-label="Đồng hồ cát pixel với cát chảy theo thời gian Focus">
                     <rect x="49" y="24" width="82" height="8" fill="#d2b08a"/>
                     <rect x="57" y="32" width="8" height="8" fill="#d2b08a"/>
                     <rect x="115" y="32" width="8" height="8" fill="#d2b08a"/>
