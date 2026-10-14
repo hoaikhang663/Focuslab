@@ -817,6 +817,8 @@ button, .button, .nav-link, .subtle-link, .file-button { -webkit-tap-highlight-c
 .audio-panel[hidden] { display: none; }
 .audio-filters { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 0; }
 .audio-filters .filter-btn { min-height: 29px; padding: 5px 8px; font-size: 9px; }
+.audio-local-notice { margin: 0 0 10px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.audio-local-notice code { color: var(--text); font-family: inherit; overflow-wrap: anywhere; }
 .audio-track-list, .audio-ambient-list { display: grid; gap: 8px; }
 .audio-track { display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 8px 10px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-raised); }
 .audio-track.is-current { border-color: #ff8a3d65; }

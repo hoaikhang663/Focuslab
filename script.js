@@ -3124,7 +3124,7 @@
       if (badLocal.has(track.id)) return;
       badLocal.add(track.id);
       localMusic.get(track.id)?.pause();
-      showToast(`Không phát được “${track.title}”. Kiểm tra file ${track.src} có tồn tại và dùng định dạng MP3, OGG hoặc WAV mà trình duyệt hỗ trợ.`, true);
+      showToast(`Không phát được “${track.title}”. Hãy thêm file ${track.src} hoặc kiểm tra định dạng MP3, OGG, WAV có được trình duyệt hỗ trợ không.`, true);
       renderLocalTracks();
       if (playing?.source === "system" && playing.id === track.id) {
         playing = null;
@@ -3284,7 +3284,7 @@
         button.setAttribute("aria-label", `Play ${track.title}`);
         const copy = make("div", "audio-track-copy");
         copy.append(make("strong", "", track.title), make("small", "", track.category));
-        copy.append(make("small", `audio-track-status${badLocal.has(track.id) ? " is-error" : ""}`, badLocal.has(track.id) ? `Không tải được · ${track.src}` : track.artist));
+        copy.append(make("small", `audio-track-status${badLocal.has(track.id) ? " is-error" : ""}`, badLocal.has(track.id) ? `Không phát được · kiểm tra ${track.src}` : track.artist));
         button.addEventListener("click", () => {
           if (playing?.source === "system" && playing.id === track.id && !localMusic.get(track.id).paused) pauseMusic();
           else void playLocal(track.id);
