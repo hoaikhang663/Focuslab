@@ -45,27 +45,23 @@
         </button>
         <div class="topbar-context"><span class="context-dot"></span><span>Không gian cá nhân</span><span class="context-divider">/</span><strong id="current-page-label">Tổng quan</strong></div>
         <div class="topbar-right">
-          <!-- Lo-fi Player & Ambient Sounds widget -->
+          <!-- Lo-fi and YouTube music player -->
           <div class="audio-widget" id="audio-widget">
-            <button class="audio-widget-toggle" id="audio-widget-toggle" type="button" aria-label="Open Lo-fi Player & Ambient Sounds" aria-expanded="false" aria-controls="audio-popover">
+            <button class="audio-widget-toggle" id="audio-widget-toggle" type="button" aria-label="Mở trình phát nhạc" aria-expanded="false" aria-controls="audio-popover">
               <svg class="audio-widget-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 15V4l9-2v11"/><circle cx="5.5" cy="15.5" r="2.5"/><circle cx="14.5" cy="13.5" r="2.5"/></svg>
               <span class="audio-widget-equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             </button>
-            <section class="audio-popover" id="audio-popover" aria-label="Lo-fi Player & Ambient Sounds" hidden>
+            <section class="audio-popover" id="audio-popover" aria-label="Trình phát nhạc" hidden>
               <div class="audio-popover-heading">
-                <div><p class="panel-kicker">YOUR SOUNDSPACE</p><h2>Lo-fi Player &amp; Ambient Sounds</h2></div>
+                <div><p class="panel-kicker">YOUR SOUNDSPACE</p><h2>Lo-fi Player</h2></div>
                 <button class="audio-close button button-outline" id="audio-close" type="button" aria-label="Close audio player">×</button>
               </div>
               <div class="audio-source-tabs" role="tablist" aria-label="Playback source">
-                <button class="audio-source-tab active" id="audio-source-system-tab" type="button" role="tab" aria-selected="true" aria-controls="audio-source-system" tabindex="0" data-audio-source="system">Hệ thống</button>
+                <button class="audio-source-tab active" id="audio-source-system-tab" type="button" role="tab" aria-selected="true" aria-controls="audio-source-system" tabindex="0" data-audio-source="system">Lo-fi</button>
                 <button class="audio-source-tab" id="audio-source-youtube-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-source-youtube" tabindex="-1" data-audio-source="youtube">YouTube</button>
               </div>
               <section class="audio-source-panel" id="audio-source-system" role="tabpanel" aria-labelledby="audio-source-system-tab">
-                <div class="audio-tabs" role="tablist" aria-label="System audio type">
-                  <button class="filter-btn audio-tab active" id="audio-system-lofi-tab" type="button" role="tab" aria-selected="true" aria-controls="audio-system-lofi" tabindex="0" data-audio-tab="lofi">Lo-fi Music</button>
-                  <button class="filter-btn audio-tab" id="audio-system-ambient-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-system-ambient" tabindex="-1" data-audio-tab="ambient">Ambient Sounds</button>
-                </div>
-                <div class="audio-panel" id="audio-system-lofi" role="tabpanel" aria-labelledby="audio-system-lofi-tab">
+                <div class="audio-panel" id="audio-system-lofi">
                   <div class="audio-filters" role="group" aria-label="Filter lo-fi music">
                     <button class="filter-btn active" type="button" data-audio-filter="all" aria-pressed="true">All</button>
                     <button class="filter-btn" type="button" data-audio-filter="chill" aria-pressed="false">Chill &amp; Relax</button>
@@ -73,28 +69,19 @@
                     <button class="filter-btn" type="button" data-audio-filter="sleep" aria-pressed="false">Sleep &amp; Calm</button>
                     <button class="filter-btn" type="button" data-audio-filter="study" aria-pressed="false">Study &amp; Focus</button>
                   </div>
-                  <p class="audio-local-notice">Không kèm file nhạc. Thêm tệp theo hướng dẫn trong <code>music/README.md</code>; YouTube vẫn hoạt động riêng.</p>
+                  <p class="audio-local-notice">Nhạc cục bộ dùng các tệp trong <code>music/</code>. Nếu thiếu file, trình phát sẽ báo rõ đường dẫn cần kiểm tra.</p>
                   <div class="audio-track-list" id="audio-local-track-list" aria-live="polite"></div>
-                </div>
-                <div class="audio-panel" id="audio-system-ambient" role="tabpanel" aria-labelledby="audio-system-ambient-tab" hidden>
-                  <p class="audio-ambient-intro">Layer local ambient sounds with your music.</p>
-                  <p class="audio-local-notice">Hiệu ứng âm thanh cũng không được kèm sẵn. Thêm file hợp pháp tại: <code>audio/ambient/rain.mp3</code>, <code>audio/ambient/ocean.mp3</code>, <code>audio/ambient/cafe.mp3</code> và <code>audio/ambient/campfire.mp3</code>.</p>
-                  <div class="audio-ambient-list" id="audio-local-ambient-list"></div>
                 </div>
               </section>
               <section class="audio-source-panel" id="audio-source-youtube" role="tabpanel" aria-labelledby="audio-source-youtube-tab" hidden>
                 <p class="audio-youtube-warning" id="audio-youtube-warning" hidden>Hãy mở bằng http://localhost để phát YouTube</p>
-                <div class="audio-tabs" role="tablist" aria-label="YouTube audio type">
-                  <button class="filter-btn audio-tab active" id="audio-youtube-lofi-tab" type="button" role="tab" aria-selected="true" aria-controls="audio-youtube-lofi" tabindex="0" data-audio-tab="lofi">Lo-fi Music</button>
-                  <button class="filter-btn audio-tab" id="audio-youtube-ambient-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-youtube-ambient" tabindex="-1" data-audio-tab="ambient">Ambient Sounds</button>
-                </div>
-                <div class="audio-panel" id="audio-youtube-lofi" role="tabpanel" aria-labelledby="audio-youtube-lofi-tab">
+                <div class="audio-panel" id="audio-youtube-lofi">
                   <form class="audio-youtube-form" id="audio-youtube-form" novalidate>
                     <label for="audio-youtube-url">YouTube URL or video ID</label>
                     <div class="audio-youtube-add-row">
                       <input class="text-input" id="audio-youtube-url" type="text" autocomplete="off" placeholder="Paste a YouTube link" aria-describedby="audio-youtube-error">
                       <select class="text-input" id="audio-youtube-category" aria-label="YouTube category">
-                        <option value="chill">Chill &amp; Relax</option><option value="coffee">Coffee &amp; Jazz</option><option value="sleep">Sleep &amp; Calm</option><option value="study" selected>Study &amp; Focus</option><option value="ambient">Ambient</option>
+                        <option value="chill">Chill &amp; Relax</option><option value="coffee">Coffee &amp; Jazz</option><option value="sleep">Sleep &amp; Calm</option><option value="study" selected>Study &amp; Focus</option>
                       </select>
                       <button class="button button-primary" type="submit">Thêm</button>
                     </div>
@@ -108,10 +95,6 @@
                     <button class="filter-btn" type="button" data-youtube-filter="study" aria-pressed="false">Study &amp; Focus</button>
                   </div>
                   <div class="audio-track-list" id="audio-youtube-track-list" aria-live="polite"></div>
-                </div>
-                <div class="audio-panel" id="audio-youtube-ambient" role="tabpanel" aria-labelledby="audio-youtube-ambient-tab" hidden>
-                  <p class="audio-ambient-intro">YouTube ambient videos loop independently and can mix with either music source.</p>
-                  <div class="audio-ambient-list" id="audio-youtube-ambient-list"></div>
                 </div>
                 <p class="audio-youtube-note">Có thể có quảng cáo, và một số video không cho nhúng.</p>
               </section>

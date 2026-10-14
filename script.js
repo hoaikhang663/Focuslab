@@ -15,18 +15,13 @@
     measurementId: "G-8SFVL3Z0GE"
   };
   const FIREBASE_SDK_VERSION = "10.8.0";
-  // Lo-fi Player & Ambient Sounds: users only need to edit these local audio lists.
+  // Local music files are kept together in music/.
   const LOCAL_TRACKS = [
     { id: "local-chill-01", title: "Quiet Afternoon", artist: "Nhạc cục bộ · MP3/OGG/WAV", category: "chill", src: "music/quiet-afternoon.mp3" },
     { id: "local-coffee-01", title: "Coffee Break", artist: "Nhạc cục bộ · MP3/OGG/WAV", category: "coffee", src: "music/coffee-break.mp3" },
     { id: "local-sleep-01", title: "Soft Night", artist: "Nhạc cục bộ · MP3/OGG/WAV", category: "sleep", src: "music/soft-night.mp3" },
-    { id: "local-study-01", title: "Deep Work", artist: "Nhạc cục bộ · MP3/OGG/WAV", category: "study", src: "music/deep-work.mp3" }
-  ];
-  const LOCAL_AMBIENT = [
-    { id: "local-rain", title: "Tiếng mưa", src: "audio/ambient/rain.mp3" },
-    { id: "local-ocean", title: "Tiếng sóng biển", src: "audio/ambient/ocean.mp3" },
-    { id: "local-cafe", title: "Tiếng quán cà phê", src: "audio/ambient/cafe.mp3" },
-    { id: "local-campfire", title: "Tiếng lửa trại", src: "audio/ambient/campfire.mp3" }
+    { id: "local-study-01", title: "Deep Work", artist: "Nhạc cục bộ · MP3/OGG/WAV", category: "study", src: "music/deep-work.mp3" },
+    { id: "local-rain", title: "Tiếng mưa thư giãn", artist: "Âm thanh thư giãn · MP3/OGG/WAV", category: "sleep", src: "music/rain.mp3" }
   ];
   const MIN_FOCUS_MINUTES = 15;
   const HABIT_COLORS = ["#ff8a3d", "#77c69d", "#7da5e8", "#b39bdd", "#df8f9a"];
@@ -2826,15 +2821,13 @@
     });
   }
 
-  /* Dual-source Lo-fi Player & Ambient Sounds widget */
+  /* Local Lo-fi and YouTube music player */
   function initAudioWidget() {
     const settingsKey = "focusforge.audio.v1";
     const playlistKey = "focusforge.youtube.v1";
     const widget = $("#audio-widget");
     const popover = $("#audio-popover");
     const localMusic = new Map();
-    const localAmbients = new Map();
-    const youtubeAmbients = new Map();
     const playerHosts = new Map();
     const badLocal = new Set();
     const badYoutube = new Set();
@@ -2848,15 +2841,13 @@
     let open = false;
     let settingsReadFailed = false;
     let playlistReadFailed = false;
-    let restoredSettings = null;
     let mediaTitle = "";
     let mediaPlayback = "";
     const preferences = {
-      source: "system", tabs: { system: "lofi", youtube: "lofi" }, filter: "all", youtubeFilter: "all",
-      localTrackId: LOCAL_TRACKS[0]?.id || "", youtubeTrackId: "", musicVolume: 0.65, ambient: {}
+      source: "system", filter: "all", youtubeFilter: "all",
+      localTrackId: LOCAL_TRACKS[0]?.id || "", youtubeTrackId: "", musicVolume: 0.65
     };
     let youtubeFilter = preferences.youtubeFilter;
-    LOCAL_AMBIENT.forEach((item) => { preferences.ambient[item.id] = { enabled: false, volume: 0.45 }; });
 
     const validVolume = (value) => typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1;
     const validCategory = (value) => ["chill", "coffee", "sleep", "study", "ambient"].includes(value);
@@ -2896,16 +2887,9 @@
       if (raw) {
         const saved = JSON.parse(raw);
         if (!saved || typeof saved !== "object" || Array.isArray(saved)) throw new Error("Invalid audio settings");
-        restoredSettings = saved;
         let invalid = false;
         if (["system", "youtube"].includes(saved.source)) preferences.source = saved.source;
         else if (saved.source !== undefined) invalid = true;
-        if (saved.tabs && typeof saved.tabs === "object") {
-          ["system", "youtube"].forEach((key) => {
-            if (["lofi", "ambient"].includes(saved.tabs[key])) preferences.tabs[key] = saved.tabs[key];
-            else if (saved.tabs[key] !== undefined) invalid = true;
-          });
-        } else if (saved.tabs !== undefined) invalid = true;
         if (["all", "chill", "coffee", "sleep", "study"].includes(saved.filter)) preferences.filter = saved.filter;
         else if (saved.filter !== undefined) invalid = true;
         if (["all", "chill", "coffee", "sleep", "study"].includes(saved.youtubeFilter)) preferences.youtubeFilter = saved.youtubeFilter;
@@ -2916,15 +2900,6 @@
         else if (saved.youtubeTrackId !== undefined) invalid = true;
         if (validVolume(saved.musicVolume)) preferences.musicVolume = saved.musicVolume;
         else if (saved.musicVolume !== undefined) invalid = true;
-        if (saved.ambient !== undefined && (!saved.ambient || typeof saved.ambient !== "object" || Array.isArray(saved.ambient))) invalid = true;
-        LOCAL_AMBIENT.forEach((item) => {
-          const channel = saved.ambient?.[item.id];
-          if (!channel || typeof channel !== "object") return;
-          if (typeof channel.enabled === "boolean") preferences.ambient[item.id].enabled = channel.enabled;
-          else if (channel.enabled !== undefined) invalid = true;
-          if (validVolume(channel.volume)) preferences.ambient[item.id].volume = channel.volume;
-          else if (channel.volume !== undefined) invalid = true;
-        });
         if (invalid) showToast("Một số tùy chọn âm thanh không hợp lệ và đã được đặt lại.", true);
       }
     } catch (error) {
@@ -2941,7 +2916,10 @@
           const valid = item && typeof item === "object" && typeof item.videoId === "string" && /^[\w-]{11}$/.test(item.videoId)
             && item.id === `yt-${item.videoId}` && typeof item.title === "string" && item.title.length > 0 && item.title.length <= 200
             && validCategory(item.category) && !ids.has(item.videoId);
-          if (valid) ids.add(item.videoId);
+          if (valid) {
+            ids.add(item.videoId);
+            if (item.category === "ambient") item.category = "sleep";
+          }
           return valid;
         });
         if (playlist.length !== saved.length) showToast("Một số mục YouTube không hợp lệ hoặc trùng đã được bỏ qua.", true);
@@ -2950,17 +2928,8 @@
       playlistReadFailed = true;
       showToast(`Không thể đọc danh sách YouTube: ${error.message}`, true);
     }
-    playlist.filter((item) => item.category === "ambient").forEach((item) => {
-      const saved = restoredSettings?.ambient?.[item.id];
-      if (saved && typeof saved === "object") {
-        preferences.ambient[item.id] = {
-          enabled: typeof saved.enabled === "boolean" ? saved.enabled : false,
-          volume: validVolume(saved.volume) ? saved.volume : 0.45
-        };
-      } else preferences.ambient[item.id] = { enabled: false, volume: 0.45 };
-    });
-    if (!playlist.some((item) => item.id === preferences.youtubeTrackId && item.category !== "ambient")) {
-      preferences.youtubeTrackId = playlist.find((item) => item.category !== "ambient")?.id || "";
+    if (!playlist.some((item) => item.id === preferences.youtubeTrackId)) {
+      preferences.youtubeTrackId = playlist[0]?.id || "";
     }
 
     function extractYouTubeId(value) {
@@ -2981,7 +2950,7 @@
       if (open === value) return;
       open = value;
       $("#audio-widget-toggle").setAttribute("aria-expanded", String(value));
-      $("#audio-widget-toggle").setAttribute("aria-label", `${value ? "Close" : "Open"} Lo-fi Player & Ambient Sounds`);
+      $("#audio-widget-toggle").setAttribute("aria-label", `${value ? "Đóng" : "Mở"} trình phát nhạc`);
       if (value) {
         popover.hidden = false;
         requestAnimationFrame(() => popover.classList.add("is-open"));
@@ -3007,9 +2976,8 @@
       }
     }
     function updateHeader() {
-      const localPlaying = [...localMusic.values(), ...localAmbients.values()].some((audio) => !audio.paused && !audio.ended);
-      const ytAmbientPlaying = [...youtubeAmbients.values()].some((channel) => channel.playing);
-      widget.classList.toggle("is-playing", localPlaying || Boolean(playing?.source === "youtube" && musicPlayer?.getPlayerState?.() === window.YT?.PlayerState.PLAYING) || ytAmbientPlaying);
+      const localPlaying = [...localMusic.values()].some((audio) => !audio.paused && !audio.ended);
+      widget.classList.toggle("is-playing", localPlaying || Boolean(playing?.source === "youtube" && musicPlayer?.getPlayerState?.() === window.YT?.PlayerState.PLAYING));
     }
     function getCurrentTrack() {
       if (playing) return playing.source === "system" ? localTrack(playing.id) : youtubeTrack(playing.id);
@@ -3075,23 +3043,8 @@
       $("#audio-source-system").hidden = source !== "system";
       $("#audio-source-youtube").hidden = source !== "youtube";
       $("#audio-youtube-warning").hidden = source !== "youtube" || !fileProtocol();
-      setTab(preferences.tabs[source]);
       saveSettings();
       updateMini();
-    }
-    function setTab(tab) {
-      preferences.tabs[preferences.source] = tab;
-      const panelId = `audio-source-${preferences.source}`;
-      document.querySelectorAll(`#${panelId} [data-audio-tab]`).forEach((button) => {
-        const selected = button.dataset.audioTab === tab;
-        button.classList.toggle("active", selected);
-        button.setAttribute("aria-selected", String(selected));
-        button.tabIndex = selected ? 0 : -1;
-      });
-      const prefix = preferences.source === "system" ? "audio-system" : "audio-youtube";
-      $(`#${prefix}-lofi`).hidden = tab !== "lofi";
-      $(`#${prefix}-ambient`).hidden = tab !== "ambient";
-      saveSettings();
     }
     function stopOtherMusic(source) {
       if (source !== "system") localMusic.forEach((audio) => audio.pause());
@@ -3112,7 +3065,7 @@
       return null;
     }
     function youtubeNext(id, direction) {
-      const tracks = playlist.filter((item) => item.category !== "ambient" && (youtubeFilter === "all" || item.category === youtubeFilter));
+      const tracks = playlist.filter((item) => youtubeFilter === "all" || item.category === youtubeFilter);
       const start = tracks.findIndex((item) => item.id === id);
       for (let i = 1; i <= tracks.length; i += 1) {
         const candidate = tracks[(start + direction * i + tracks.length * 2) % tracks.length];
@@ -3231,7 +3184,7 @@
         return showToast("Hãy mở bằng http://localhost để phát YouTube.", true);
       }
       let track = youtubeTrack(id);
-      if (!track || track.category === "ambient") return;
+      if (!track) return;
       if (badYoutube.has(track.videoId)) track = youtubeNext(id, direction);
       if (!track) return showToast("Không còn video YouTube nào có thể phát trong bộ lọc hiện tại.", true);
       stopOtherMusic("youtube");
@@ -3281,7 +3234,7 @@
         row.classList.toggle("is-current", preferences.localTrackId === track.id);
         const button = make("button", "button button-outline audio-track-play", playing?.source === "system" && playing.id === track.id && !localMusic.get(track.id)?.paused ? "Ⅱ" : "▶");
         button.type = "button";
-        button.setAttribute("aria-label", `Play ${track.title}`);
+        button.setAttribute("aria-label", `Phát ${track.title}`);
         const copy = make("div", "audio-track-copy");
         copy.append(make("strong", "", track.title), make("small", "", track.category));
         copy.append(make("small", `audio-track-status${badLocal.has(track.id) ? " is-error" : ""}`, badLocal.has(track.id) ? `Không phát được · kiểm tra ${track.src}` : track.artist));
@@ -3289,46 +3242,18 @@
           if (playing?.source === "system" && playing.id === track.id && !localMusic.get(track.id).paused) pauseMusic();
           else void playLocal(track.id);
         });
-        row.append(button, copy);
+        row.append(copy, button);
         list.append(row);
-      });
-    }
-    function renderLocalAmbient() {
-      const list = $("#audio-local-ambient-list");
-      list.replaceChildren();
-      LOCAL_AMBIENT.forEach((item) => {
-        const audio = localAmbients.get(item.id);
-        const active = Boolean(audio && !audio.paused);
-        const row = make("article", "audio-ambient-item");
-        const button = make("button", "button button-outline audio-ambient-toggle", active ? "Ⅱ" : "▶");
-        button.type = "button";
-        button.setAttribute("aria-pressed", String(active));
-        button.setAttribute("aria-label", `${active ? "Turn off" : "Turn on"} ${item.title}`);
-        const copy = make("div", "audio-track-copy");
-        copy.append(make("strong", "audio-ambient-name", item.title));
-        copy.append(make("small", `audio-track-status${badLocal.has(item.id) ? " is-error" : ""}`, badLocal.has(item.id) ? `Không tải được · ${item.src}` : ""));
-        const label = make("label", "audio-ambient-volume");
-        const volume = document.createElement("input");
-        volume.type = "range"; volume.min = "0"; volume.max = "1"; volume.step = "0.01";
-        volume.value = String(preferences.ambient[item.id].volume);
-        volume.setAttribute("aria-label", `${item.title} volume`);
-        label.append(make("span", "", "Volume"), volume);
-        button.addEventListener("click", () => active ? stopLocalAmbient(item.id) : playLocalAmbient(item.id));
-        volume.addEventListener("input", () => {
-          preferences.ambient[item.id].volume = Number(volume.value);
-          if (audio) audio.volume = Number(volume.value);
-          saveSettings();
-        });
-        row.append(button, copy, label); list.append(row);
       });
     }
     function renderYoutubeTracks() {
       const list = $("#audio-youtube-track-list");
       list.replaceChildren();
-      const tracks = playlist.filter((item) => item.category !== "ambient" && (youtubeFilter === "all" || item.category === youtubeFilter));
+      const tracks = playlist.filter((item) => youtubeFilter === "all" || item.category === youtubeFilter);
       if (!tracks.length) list.append(make("p", "audio-empty", "Paste a YouTube link above to add a track."));
       tracks.forEach((track) => {
         const row = make("article", "audio-track");
+        row.classList.add("audio-track-youtube");
         row.classList.toggle("is-current", preferences.youtubeTrackId === track.id);
         const button = make("button", "button button-outline audio-track-play", playing?.source === "youtube" && playing.id === track.id && isMusicPlaying() ? "Ⅱ" : "▶");
         button.type = "button"; button.setAttribute("aria-label", `Play ${track.title}`);
@@ -3350,132 +3275,15 @@
         remove.addEventListener("click", () => {
           if (playing?.source === "youtube" && playing.id === track.id) { pauseMusic(); playing = null; }
           playlist = playlist.filter((item) => item.id !== track.id);
-          if (preferences.youtubeTrackId === track.id) preferences.youtubeTrackId = playlist.find((item) => item.category !== "ambient")?.id || "";
-          savePlaylist(); saveSettings(); renderYoutubeTracks(); renderYoutubeAmbient(); updateMini();
+          if (preferences.youtubeTrackId === track.id) preferences.youtubeTrackId = playlist[0]?.id || "";
+          savePlaylist(); saveSettings(); renderYoutubeTracks(); updateMini();
         });
         button.addEventListener("click", () => {
           if (playing?.source === "youtube" && playing.id === track.id && isMusicPlaying()) pauseMusic();
           else void playYoutube(track.id);
         });
-        actions.append(rename, remove); row.append(button, copy, actions); list.append(row);
+        actions.append(rename, remove); row.append(copy, actions, button); list.append(row);
       });
-    }
-    function renderYoutubeAmbient() {
-      const list = $("#audio-youtube-ambient-list");
-      list.replaceChildren();
-      playlist.filter((item) => item.category === "ambient").forEach((item) => {
-        if (!preferences.ambient[item.id]) preferences.ambient[item.id] = { enabled: false, volume: 0.45 };
-        const channel = youtubeAmbients.get(item.id);
-        const active = Boolean(channel?.playing);
-        const row = make("article", "audio-ambient-item");
-        const button = make("button", "button button-outline audio-ambient-toggle", active ? "Ⅱ" : "▶");
-        button.type = "button"; button.setAttribute("aria-pressed", String(active));
-        button.setAttribute("aria-label", `${active ? "Turn off" : "Turn on"} ${item.title}`);
-        const copy = make("div", "audio-track-copy");
-        copy.append(make("strong", "audio-ambient-name", item.title));
-        const error = badYoutube.has(item.videoId);
-        copy.append(make("small", `audio-track-status${error ? " is-error" : ""}`, error ? "Không thể phát (video bị xóa hoặc không cho nhúng)" : "YouTube Ambient"));
-        const actions = make("div", "audio-youtube-actions");
-        const rename = make("button", "button button-outline audio-small-action", "Đổi tên");
-        const remove = make("button", "button button-outline audio-small-action", "Xóa");
-        rename.type = "button"; remove.type = "button";
-        rename.setAttribute("aria-label", `Rename ${item.title}`); remove.setAttribute("aria-label", `Delete ${item.title}`);
-        rename.addEventListener("click", () => {
-          const value = prompt("Tên ambient", item.title);
-          if (value === null) return;
-          if (!value.trim()) return showToast("Tên không được để trống.", true);
-          item.title = value.trim().slice(0, 200); item.customTitle = true;
-          savePlaylist(); renderYoutubeAmbient();
-        });
-        remove.addEventListener("click", () => {
-          stopYoutubeAmbient(item.id);
-          youtubeAmbients.get(item.id)?.player?.destroy();
-          playerHosts.get(`ambient-${item.id}`)?.remove();
-          playerHosts.delete(`ambient-${item.id}`);
-          youtubeAmbients.delete(item.id);
-          badYoutube.delete(item.videoId);
-          playlist = playlist.filter((entry) => entry.id !== item.id);
-          delete preferences.ambient[item.id];
-          savePlaylist(); saveSettings(); renderYoutubeAmbient();
-        });
-        actions.append(rename, remove);
-        const label = make("label", "audio-ambient-volume");
-        const volume = document.createElement("input");
-        volume.type = "range"; volume.min = "0"; volume.max = "1"; volume.step = "0.01";
-        volume.value = String(preferences.ambient[item.id].volume); volume.setAttribute("aria-label", `${item.title} volume`);
-        label.append(make("span", "", "Volume"), volume);
-        button.addEventListener("click", () => active ? stopYoutubeAmbient(item.id) : playYoutubeAmbient(item));
-        volume.addEventListener("input", () => {
-          preferences.ambient[item.id].volume = Number(volume.value);
-          channel?.player?.setVolume(Math.round(Number(volume.value) * 100));
-          saveSettings();
-        });
-        copy.append(actions);
-        row.append(button, copy, label); list.append(row);
-      });
-      if (!list.children.length) list.append(make("p", "audio-empty", "Add a YouTube link and choose Ambient to create an ambient channel."));
-    }
-    function playLocalAmbient(id) {
-      const item = LOCAL_AMBIENT.find((source) => source.id === id);
-      const audio = localAmbients.get(id);
-      if (!item || !audio) return;
-      audio.volume = preferences.ambient[id].volume;
-      audio.play().then(() => {
-        preferences.ambient[id].enabled = true; saveSettings(); renderLocalAmbient(); updateHeader();
-      }).catch((error) => {
-        if (error.name !== "AbortError" && !badLocal.has(id)) {
-          audio.pause();
-          badLocal.add(id); preferences.ambient[id].enabled = false;
-          showToast(`“${item.title}” không tải được. Kiểm tra ${item.src}.`, true);
-          renderLocalAmbient();
-          updateHeader();
-        }
-      });
-    }
-    function stopLocalAmbient(id) {
-      const audio = localAmbients.get(id);
-      if (audio) { audio.pause(); audio.currentTime = 0; }
-      preferences.ambient[id].enabled = false; saveSettings(); renderLocalAmbient(); updateHeader();
-    }
-    async function playYoutubeAmbient(item) {
-      if (fileProtocol()) { $("#audio-youtube-warning").hidden = false; return showToast("Hãy mở bằng http://localhost để phát YouTube.", true); }
-      try {
-        const YT = await ensureYoutubeApi();
-        let channel = youtubeAmbients.get(item.id);
-        if (channel?.ready) { channel.player.playVideo(); channel.playing = true; renderYoutubeAmbient(); updateHeader(); return; }
-        if (!channel) { channel = { player: null, ready: false, playing: false }; youtubeAmbients.set(item.id, channel); }
-        const host = createHost(`ambient-${item.id}`);
-        channel.player = new YT.Player(host.id, {
-          width: 1, height: 1, videoId: item.videoId,
-          playerVars: { autoplay: 1, controls: 0, disablekb: 1, playsinline: 1, rel: 0 },
-          events: {
-            onReady: (event) => { channel.ready = true; event.target.setVolume(Math.round(preferences.ambient[item.id].volume * 100)); event.target.playVideo(); },
-            onStateChange: (event) => {
-              if (!preferences.ambient[item.id]) return;
-              if (event.data === YT.PlayerState.PLAYING) channel.playing = true;
-              if (event.data === YT.PlayerState.PAUSED) channel.playing = false;
-              if (event.data === YT.PlayerState.ENDED) { event.target.seekTo(0, true); event.target.playVideo(); }
-              preferences.ambient[item.id].enabled = channel.playing; saveSettings(); renderYoutubeAmbient(); updateHeader();
-            },
-            onError: () => {
-              badYoutube.add(item.videoId); channel.playing = false;
-              preferences.ambient[item.id].enabled = false;
-              saveSettings();
-              showToast(`Không thể phát (video bị xóa hoặc không cho nhúng): ${item.title}.`, true);
-              renderYoutubeAmbient(); updateHeader();
-            }
-          }
-        });
-        preferences.ambient[item.id] = preferences.ambient[item.id] || { enabled: true, volume: 0.45 };
-        preferences.ambient[item.id].enabled = true; saveSettings();
-      } catch (error) { showToast(error.message || String(error), true); }
-    }
-    function stopYoutubeAmbient(id) {
-      const channel = youtubeAmbients.get(id);
-      channel?.player?.pauseVideo();
-      if (channel) channel.playing = false;
-      if (preferences.ambient[id]) preferences.ambient[id].enabled = false;
-      saveSettings(); renderYoutubeAmbient(); updateHeader();
     }
     function setFilter(filter, source) {
       if (source === "system") preferences.filter = filter;
@@ -3498,9 +3306,8 @@
       const category = $("#audio-youtube-category").value;
       const item = { id: `yt-${videoId}`, videoId, title: `YouTube video ${videoId}`, category, customTitle: false };
       playlist.push(item);
-      if (category === "ambient") preferences.ambient[item.id] = { enabled: false, volume: 0.45 };
-      else if (!preferences.youtubeTrackId) preferences.youtubeTrackId = item.id;
-      savePlaylist(); saveSettings(); input.value = ""; renderYoutubeTracks(); renderYoutubeAmbient(); updateMini();
+      if (!preferences.youtubeTrackId) preferences.youtubeTrackId = item.id;
+      savePlaylist(); saveSettings(); input.value = ""; renderYoutubeTracks(); updateMini();
     }
     function moveSeek() {
       if (playing?.source === "system") {
@@ -3523,21 +3330,8 @@
       audio.addEventListener("ended", () => { if (playing?.id === track.id) skipMusic(1); });
       audio.addEventListener("error", () => handleLocalError(track)); localMusic.set(track.id, audio);
     });
-    LOCAL_AMBIENT.forEach((item) => {
-      const audio = new Audio(item.src); audio.preload = "none"; audio.loop = true;
-      audio.volume = preferences.ambient[item.id].volume;
-      audio.addEventListener("play", updateHeader); audio.addEventListener("pause", updateHeader);
-      audio.addEventListener("error", () => {
-        if (badLocal.has(item.id)) return;
-        audio.pause();
-        badLocal.add(item.id); preferences.ambient[item.id].enabled = false;
-        showToast(`“${item.title}” không tải được. Kiểm tra ${item.src}.`, true); renderLocalAmbient();
-        updateHeader();
-      });
-      localAmbients.set(item.id, audio);
-    });
     $("#audio-music-volume").value = String(preferences.musicVolume);
-    renderLocalTracks(); renderLocalAmbient(); renderYoutubeTracks(); renderYoutubeAmbient();
+    renderLocalTracks(); renderYoutubeTracks();
     setFilter(preferences.filter, "system");
     setFilter(preferences.youtubeFilter, "youtube");
     document.querySelectorAll("[data-audio-filter]").forEach((button) => button.addEventListener("click", () => setFilter(button.dataset.audioFilter, "system")));
@@ -3550,14 +3344,6 @@
         if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
         event.preventDefault(); const next = button.dataset.audioSource === "system" ? "youtube" : "system";
         setSource(next); $(`[data-audio-source="${next}"]`).focus();
-      });
-    });
-    document.querySelectorAll("[data-audio-tab]").forEach((button) => {
-      button.addEventListener("click", () => setTab(button.dataset.audioTab));
-      button.addEventListener("keydown", (event) => {
-        if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
-        event.preventDefault(); const tabs = [...document.querySelectorAll(`#audio-source-${preferences.source} [data-audio-tab]`)];
-        const next = tabs[(tabs.indexOf(button) + 1) % tabs.length]; next.click(); next.focus();
       });
     });
     $("#audio-youtube-form").addEventListener("submit", addYoutube);
