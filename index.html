@@ -211,9 +211,81 @@
             </article>
             <article class="panel timer-card" id="timer-card">
               <div class="timer-state"><span class="timer-state-dot" id="timer-state-dot"></span><span id="timer-state">SẴN SÀNG</span></div>
-              <div class="timer-progress" id="timer-progress"><div class="timer-progress-inner"><span id="timer-task-label">CHỌN NHIỆM VỤ</span><strong id="timer-display">25:00</strong><small id="timer-progress-label">0% hoàn thành</small></div></div>
+              <div class="visualizer-switcher" role="group" aria-label="Chế độ hiển thị đồng hồ Focus">
+                <button class="visualizer-option is-active" type="button" data-visualizer="default" aria-pressed="true">Default</button>
+                <button class="visualizer-option" type="button" data-visualizer="candle" aria-pressed="false">Pixel Nến</button>
+                <button class="visualizer-option" type="button" data-visualizer="hourglass" aria-pressed="false">Pixel Đồng Hồ Cát</button>
+              </div>
+              <div class="timer-visual-stage" id="timer-visual-stage" data-active-visualizer="default" data-status="idle" style="--focus-progress: 0%">
+                <div class="timer-visual-panel timer-progress is-active" id="timer-progress" data-visual-panel="default" aria-hidden="false">
+                  <div class="timer-progress-inner"><span id="timer-task-label">CHỌN NHIỆM VỤ</span><strong class="timer-display" id="timer-display">25:00</strong><small class="timer-progress-label" id="timer-progress-label">0% hoàn thành</small></div>
+                </div>
+                <div class="timer-visual-panel timer-pixel-panel" id="timer-visual-candle" data-visual-panel="candle" aria-hidden="true" inert>
+                  <svg class="pixel-art pixel-candle" viewBox="0 0 180 190" role="img" aria-label="Ngọn nến pixel thay đổi theo thời gian Focus">
+                    <rect x="42" y="153" width="96" height="8" fill="#303039"/>
+                    <rect x="54" y="161" width="72" height="5" fill="#25262d"/>
+                    <rect x="67" y="78" width="46" height="72" fill="#d48655" id="candle-wax"/>
+                    <rect x="67" y="78" width="8" height="72" fill="#edaa70" id="candle-wax-highlight"/>
+                    <rect x="105" y="83" width="8" height="67" fill="#a85e40" id="candle-wax-shadow"/>
+                    <rect x="75" y="72" width="30" height="7" fill="#e5a26b" id="candle-wax-top"/>
+                    <rect x="82" y="62" width="16" height="11" fill="#6c4038" id="candle-wick"/>
+                    <g id="candle-flame">
+                      <rect x="82" y="42" width="16" height="8" fill="#f6bd63"/>
+                      <rect x="76" y="50" width="28" height="8" fill="#f6bd63"/>
+                      <rect x="80" y="58" width="20" height="8" fill="#f08a45"/>
+                      <rect x="86" y="48" width="8" height="14" fill="#ffe49b"/>
+                      <rect x="79" y="34" width="8" height="8" fill="#f08a45"/>
+                    </g>
+                    <rect x="44" y="87" width="8" height="8" fill="#f6bd63" opacity=".65"/>
+                    <rect x="121" y="68" width="8" height="8" fill="#f08a45" opacity=".55"/>
+                    <rect x="53" y="118" width="6" height="6" fill="#f6bd63" opacity=".4"/>
+                  </svg>
+                  <strong class="timer-display pixel-time">25:00</strong>
+                  <small class="timer-progress-label pixel-progress">0% hoàn thành</small>
+                </div>
+                <div class="timer-visual-panel timer-pixel-panel" id="timer-visual-hourglass" data-visual-panel="hourglass" aria-hidden="true" inert>
+                  <svg class="pixel-art pixel-hourglass" viewBox="0 0 180 190" role="img" aria-label="Đồng hồ cát pixel với cát chảy theo thời gian Focus">
+                    <rect x="49" y="24" width="82" height="8" fill="#d2b08a"/>
+                    <rect x="57" y="32" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="115" y="32" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="65" y="40" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="107" y="40" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="73" y="48" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="99" y="48" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="81" y="56" width="18" height="8" fill="#d2b08a"/>
+                    <rect x="73" y="64" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="99" y="64" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="65" y="72" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="107" y="72" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="57" y="80" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="115" y="80" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="49" y="88" width="82" height="8" fill="#d2b08a"/>
+                    <rect x="57" y="96" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="115" y="96" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="65" y="104" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="107" y="104" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="73" y="112" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="99" y="112" width="8" height="8" fill="#d2b08a"/>
+                    <rect x="81" y="120" width="18" height="8" fill="#d2b08a"/>
+                    <rect x="73" y="128" width="34" height="6" fill="#edbd72" id="hourglass-sand-base"/>
+                    <g id="hourglass-top-sand">
+                      <rect x="77" y="80" width="26" height="7" fill="#edbd72"/>
+                      <rect x="81" y="72" width="18" height="7" fill="#edbd72"/>
+                      <rect x="85" y="64" width="10" height="7" fill="#edbd72"/>
+                    </g>
+                    <g class="hourglass-grains" aria-hidden="true">
+                      <rect class="sand-grain sand-grain-one" x="86" y="91" width="8" height="6" fill="#ffd98c"/>
+                      <rect class="sand-grain sand-grain-two" x="90" y="91" width="6" height="6" fill="#edbd72"/>
+                      <rect class="sand-grain sand-grain-three" x="84" y="91" width="6" height="6" fill="#edbd72"/>
+                    </g>
+                    <rect x="42" y="145" width="96" height="7" fill="#303039"/>
+                  </svg>
+                  <strong class="timer-display pixel-time">25:00</strong>
+                  <small class="timer-progress-label pixel-progress">0% hoàn thành</small>
+                </div>
+              </div>
               <p class="timer-task" id="timer-task">Tập trung vào điều quan trọng nhất.</p>
-              <div class="timer-controls" id="timer-controls"><button class="button button-primary" id="timer-main-action" type="button" disabled>Bắt đầu</button></div>
+              <div class="timer-controls" id="timer-controls"><button class="button button-primary" id="timer-main-action" type="button" disabled hidden>Bắt đầu</button></div>
               <p class="timer-help" id="timer-help">Các phiên từ 15 phút trở lên được tính vào mục tiêu và thành tích.</p>
             </article>
           </div>

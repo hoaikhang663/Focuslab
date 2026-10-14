@@ -1717,6 +1717,54 @@
     return Math.max(0, state.timer.phaseEndsAt - now);
   }
 
+  function setFocusVisualizer(mode) {
+    const panels = $$("[data-visual-panel]");
+    if (!panels.some((panel) => panel.dataset.visualPanel === mode)) return;
+    $("#timer-visual-stage").dataset.activeVisualizer = mode;
+    $$("[data-visualizer]").forEach((button) => {
+      const selected = button.dataset.visualizer === mode;
+      button.classList.toggle("is-active", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+    panels.forEach((panel) => {
+      const selected = panel.dataset.visualPanel === mode;
+      panel.classList.toggle("is-active", selected);
+      panel.setAttribute("aria-hidden", String(!selected));
+      panel.inert = !selected;
+    });
+  }
+
+  function updateFocusVisuals(progress, status) {
+    const stage = $("#timer-visual-stage");
+    const fraction = Math.max(0, Math.min(1, progress / 100));
+    const remaining = 1 - fraction;
+    stage.dataset.status = status;
+    stage.style.setProperty("--focus-progress", `${progress}%`);
+
+    const candleHeight = Math.round(28 + remaining * 44);
+    const candleTop = 150 - candleHeight;
+    $("#candle-wax").setAttribute("y", String(candleTop));
+    $("#candle-wax").setAttribute("height", String(candleHeight));
+    $("#candle-wax-highlight").setAttribute("y", String(candleTop));
+    $("#candle-wax-highlight").setAttribute("height", String(candleHeight));
+    $("#candle-wax-shadow").setAttribute("y", String(candleTop + 5));
+    $("#candle-wax-shadow").setAttribute("height", String(candleHeight - 5));
+    $("#candle-wax-top").setAttribute("y", String(candleTop - 6));
+    $("#candle-wick").setAttribute("y", String(candleTop - 16));
+    $("#candle-wick").setAttribute("height", "12");
+    $("#candle-flame").setAttribute("transform", `translate(0 ${candleTop - 78})`);
+
+    const sandHeight = Math.round(4 + fraction * 24);
+    const sandWidth = Math.round(8 + fraction * 36);
+    const sand = $("#hourglass-sand-base");
+    sand.setAttribute("x", String(90 - sandWidth / 2));
+    sand.setAttribute("y", String(134 - sandHeight));
+    sand.setAttribute("width", String(sandWidth));
+    sand.setAttribute("height", String(sandHeight));
+    $("#hourglass-top-sand").style.transform = `scaleY(${remaining})`;
+    $("#hourglass-top-sand").style.transformOrigin = "90px 87px";
+  }
+
   function setTimerState(status, remainingMs) {
     const timer = state.timer;
     if (!timer) return;
@@ -1890,13 +1938,15 @@
       stateLabel.textContent = "SẴN SÀNG";
       stateDot.className = "timer-state-dot";
       $("#timer-task-label").textContent = "CHỌN NHIỆM VỤ";
-      $("#timer-display").textContent = `${String(shownMinutes).padStart(2, "0")}:00`;
-      $("#timer-progress-label").textContent = "0% hoàn thành";
+      $$(".timer-display").forEach((display) => { display.textContent = `${String(shownMinutes).padStart(2, "0")}:00`; });
+      $$(".timer-progress-label").forEach((label) => { label.textContent = "0% hoàn thành"; });
       $("#timer-task").textContent = "Tập trung vào điều quan trọng nhất.";
       $("#timer-help").textContent = `Mục tiêu ngày ${state.data.settings.dailyGoalMinutes} phút · Phiên hợp lệ từ ${MIN_FOCUS_MINUTES} phút.`;
       $("#timer-progress").style.setProperty("--timer-progress", "0deg");
+      updateFocusVisuals(0, "idle");
       controls.replaceChildren();
       primary.disabled = true;
+      primary.hidden = true;
       primary.textContent = "Bắt đầu";
       controls.append(primary);
       return;
@@ -1907,10 +1957,12 @@
     const remaining = timerRemaining();
     const minutes = Math.floor(remaining / 60000);
     const seconds = Math.floor(remaining % 60000 / 1000);
-    $("#timer-display").textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    const displayText = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    $$(".timer-display").forEach((display) => { display.textContent = displayText; });
     const percent = timer.status === "pending-save" ? 100 : Math.min(100, timerElapsed() / (timer.expectedMinutes * 60000) * 100);
     $("#timer-progress").style.setProperty("--timer-progress", `${percent * 3.6}deg`);
-    $("#timer-progress-label").textContent = `${Math.floor(percent)}% hoàn thành`;
+    $$(".timer-progress-label").forEach((label) => { label.textContent = `${Math.floor(percent)}% hoàn thành`; });
+    updateFocusVisuals(percent, timer.status);
     $("#timer-help").textContent = timer.status === "pending-save"
       ? `Thời gian thực tế: ${formatMinutes(timer.actualMs)} · Xác nhận lưu để ghi nhận.`
       : timer.status === "paused" ? "Đồng hồ đã tạm dừng; thời gian tạm dừng không được tính."
@@ -1918,6 +1970,7 @@
     stateLabel.textContent = timer.status === "running" ? "ĐANG TẬP TRUNG" : timer.status === "paused" ? "ĐÃ TẠM DỪNG" : "CHỜ XÁC NHẬN";
     stateDot.className = `timer-state-dot ${timer.status}`;
     controls.replaceChildren();
+    primary.hidden = false;
     if (timer.status === "pending-save") {
       primary.disabled = false;
       primary.textContent = "Lưu phiên";
@@ -2696,6 +2749,9 @@
       navigate(Object.hasOwn(PAGE_NAMES, requested) ? requested : "overview");
     });
     $("#focus-form").addEventListener("submit", startFocus);
+    $$("[data-visualizer]").forEach((button) => {
+      button.addEventListener("click", () => setFocusVisualizer(button.dataset.visualizer));
+    });
     $$('input[name="focus-duration"]').forEach((radio) => radio.addEventListener("change", updateDurationChoice));
     $("#task-form")?.addEventListener("submit", (event) => {
       event.preventDefault();
