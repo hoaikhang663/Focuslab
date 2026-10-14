@@ -396,18 +396,29 @@
       </span>
       <p class="panel-kicker">MINDFUL RESET</p>
       <h2 id="vent-title">Vent Space</h2>
-      <p class="vent-description" id="vent-description">Đây là khoảng riêng tư trên thiết bị này. Nội dung bạn viết sẽ không được lưu.</p>
+      <p class="vent-description" id="vent-description">This is a private space. Nothing you write here will be saved.</p>
       <div class="vent-compose" id="vent-compose">
-        <label class="vent-prompt" for="vent-thought-input">Hãy gõ ra những suy nghĩ làm bạn phân tâm hoặc mệt mỏi lúc này...</label>
-        <textarea class="text-input vent-thought-input" id="vent-thought-input" maxlength="1200" rows="5"></textarea>
-        <button class="button button-primary vent-burn-button" id="vent-burn-button" type="button">Xóa tan / Burn</button>
+        <label class="vent-prompt" for="vent-thought-input">Take a moment to name what is weighing on your mind.</label>
+        <div class="vent-paper">
+          <textarea class="vent-thought-input" id="vent-thought-input" maxlength="1200" rows="6" placeholder="Write down any thoughts, worries, or distractions holding you back right now..."></textarea>
+        </div>
+        <button class="button button-primary vent-burn-button" id="vent-burn-button" type="button">Burn &amp; Release <span aria-hidden="true">🔥</span></button>
       </div>
       <div class="vent-burn-stage" id="vent-burn-stage" hidden aria-live="polite">
-        <p class="vent-thought" id="vent-thought"></p>
+        <div class="vent-paper vent-paper-burning" id="vent-paper-burning">
+          <p class="vent-thought" id="vent-thought"></p>
+          <span class="vent-flame vent-flame-one" aria-hidden="true"></span>
+          <span class="vent-flame vent-flame-two" aria-hidden="true"></span>
+          <span class="vent-flame vent-flame-three" aria-hidden="true"></span>
+          <span class="vent-ash vent-ash-one" aria-hidden="true"></span>
+          <span class="vent-ash vent-ash-two" aria-hidden="true"></span>
+          <span class="vent-ash vent-ash-three" aria-hidden="true"></span>
+          <span class="vent-ash vent-ash-four" aria-hidden="true"></span>
+        </div>
       </div>
       <div class="vent-aftercare" id="vent-aftercare" hidden aria-live="polite">
         <p class="vent-positive-message" id="vent-positive-message"></p>
-        <button class="button button-primary" id="vent-ready-button" type="button">Sẵn sàng Focus</button>
+        <button class="button button-primary" id="vent-ready-button" type="button">Ready to Focus</button>
       </div>
     </section>
   </div>

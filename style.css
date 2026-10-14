@@ -415,16 +415,50 @@ h1 { margin-bottom: 7px; font-size: clamp(22px, 2.6vw, 29px); font-weight: 650; 
 .vent-close { position: absolute; top: 13px; right: 14px; display: grid; width: 34px; height: 34px; place-items: center; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #a1a49c; font-size: 25px; line-height: 1; cursor: pointer; }
 .vent-close:hover { background: #2b2e2a; color: #f2f1ec; }
 .vent-prompt { display: block; margin-bottom: 10px; color: #d4d6d0; font-size: 14px; line-height: 1.55; }
-.vent-thought-input { min-height: 140px; padding: 12px 13px; resize: vertical; font-size: 14px; line-height: 1.6; }
-.vent-thought-input:focus { border-color: #849975; outline-color: #a2bb8a30; }
-.vent-burn-button { min-height: 43px; margin-top: 14px; background: #647b55; }
+.vent-prompt { display: block; margin-bottom: 11px; color: #d4d6d0; font-size: 14px; line-height: 1.55; }
+.vent-paper { position: relative; isolation: isolate; width: 100%; min-height: 218px; overflow: hidden; border: 1px solid #d8c994; border-radius: 4px 7px 5px 6px; background-color: #f0e5bd; background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 30px, #7e8da01c 31px, transparent 32px); box-shadow: 0 13px 25px #0004, 0 3px 6px #0003, inset 0 1px #fff8; transform: rotate(-.35deg); }
+.vent-paper::before, .vent-paper::after { position: absolute; z-index: 2; inset: 0; pointer-events: none; content: ""; opacity: 0; }
+.vent-paper::before { background: linear-gradient(to top, #27201c 0%, #37251c 5%, #7c3921 9%, #f36b27 13%, #ffbd55 18%, #f0e5bd 31%); transform: scaleY(0); transform-origin: bottom; }
+.vent-paper::after { inset: auto 0 0; height: 0; background: linear-gradient(to top, #181614 0%, #39302a 34%, #a84422 62%, #ffb447 100%); filter: blur(2px); }
+.vent-thought-input { display: block; width: 100%; min-height: 218px; padding: 16px 18px; resize: vertical; border: 0; border-radius: inherit; outline: 0; background: transparent; color: #37332c; font: 15px/32px "Segoe UI", Arial, sans-serif; caret-color: #8b4d2d; }
+.vent-thought-input::placeholder { color: #786f5e; opacity: .88; }
+.vent-thought-input:focus { border: 0; outline: 2px solid #d1bb7d; outline-offset: 3px; }
+.vent-burn-button { min-height: 43px; margin-top: 17px; background: #647b55; }
 .vent-burn-button:hover { background: #748c63; }
-.vent-burn-stage { min-height: 154px; display: grid; place-items: center; overflow: hidden; }
-.vent-thought { max-width: 100%; margin: 0; padding: 18px; color: #e6e5df; font-size: 16px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
-.vent-thought.is-burning { animation: vent-burn-away .76s cubic-bezier(.55,.08,.68,.53) forwards; }
+.vent-burn-button:disabled { cursor: wait; opacity: .68; }
+.vent-burn-stage { min-height: 245px; display: grid; place-items: center; overflow: hidden; padding: 12px 0 22px; }
+.vent-burn-stage[hidden], .vent-aftercare[hidden] { display: none; }
+.vent-paper-burning { display: grid; min-height: 218px; place-items: start stretch; transform: rotate(-.35deg); }
+.vent-thought { position: relative; z-index: 1; max-width: 100%; min-height: 216px; margin: 0; padding: 16px 18px; color: #37332c; font-size: 15px; line-height: 32px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.vent-flame, .vent-ash { position: absolute; z-index: 3; display: block; pointer-events: none; opacity: 0; }
+.vent-flame { bottom: -12px; width: 25%; height: 74%; border-radius: 55% 45% 30% 30%; background: linear-gradient(to top, #ee451e 0%, #ff8b27 40%, #ffd36d 68%, #fff0bd 85%, transparent 100%); filter: blur(5px); transform: scaleY(0); transform-origin: bottom; }
+.vent-flame-one { left: 10%; }
+.vent-flame-two { left: 38%; width: 30%; }
+.vent-flame-three { right: 8%; width: 23%; }
+.vent-ash { bottom: 14%; width: 8px; height: 8px; border-radius: 50%; background: #29221e; filter: blur(1px); }
+.vent-ash-one { left: 25%; }
+.vent-ash-two { left: 47%; width: 5px; height: 5px; }
+.vent-ash-three { right: 28%; width: 6px; height: 6px; }
+.vent-ash-four { right: 17%; width: 4px; height: 4px; }
+.vent-paper-burning.is-burning { animation: vent-paper-away 1.5s cubic-bezier(.45,.02,.72,.38) forwards; }
+.vent-paper-burning.is-burning::before { opacity: 1; animation: vent-fire-front 1.5s ease-in forwards; }
+.vent-paper-burning.is-burning::after { animation: vent-scorch-edge 1.5s ease-in forwards; }
+.vent-paper-burning.is-burning .vent-thought { animation: vent-ink-away 1.28s ease-in forwards; }
+.vent-paper-burning.is-burning .vent-flame { opacity: .92; animation: vent-flame-rise .72s ease-in-out infinite alternate; }
+.vent-paper-burning.is-burning .vent-flame-two { animation-delay: -.28s; }
+.vent-paper-burning.is-burning .vent-flame-three { animation-delay: -.5s; }
+.vent-paper-burning.is-burning .vent-ash { opacity: .9; animation: vent-ash-rise 1.05s ease-out infinite; }
+.vent-paper-burning.is-burning .vent-ash-two { animation-delay: -.24s; }
+.vent-paper-burning.is-burning .vent-ash-three { animation-delay: -.52s; }
+.vent-paper-burning.is-burning .vent-ash-four { animation-delay: -.77s; }
 .vent-aftercare { display: grid; justify-items: center; gap: 13px; padding: 12px 0 3px; text-align: center; animation: vent-arrive .32s ease-out both; }
 .vent-positive-message { max-width: 350px; margin: 0; color: #dce5d5; font-size: 17px; line-height: 1.65; }
-@keyframes vent-burn-away { 0% { opacity: 1; filter: blur(0); transform: scale(1) translateY(0); } 55% { opacity: .72; filter: blur(1px); transform: scale(.94) translateY(-5px); } 100% { opacity: 0; filter: blur(8px); transform: scale(.62) translateY(-18px); } }
+@keyframes vent-paper-away { 0%, 14% { opacity: 1; clip-path: polygon(0 0,100% 0,100% 100%,0 100%); transform: rotate(-.35deg) scale(1); filter: sepia(.1); } 72% { opacity: .96; clip-path: polygon(0 0,100% 0,100% 30%,0 36%); transform: rotate(1deg) scale(.96) translateY(-4px); filter: sepia(.65) contrast(1.12); } 100% { opacity: 0; clip-path: polygon(0 0,100% 0,100% 0,0 0); transform: rotate(4deg) scale(.7) translateY(-18px); filter: sepia(1) blur(5px); } }
+@keyframes vent-fire-front { 0% { transform: scaleY(0); } 18% { transform: scaleY(.12); } 72% { transform: scaleY(1); } 100% { transform: scaleY(1.15); opacity: .8; } }
+@keyframes vent-scorch-edge { 0% { height: 0; opacity: 0; } 16% { height: 8px; opacity: .9; } 72% { height: 18px; opacity: .95; } 100% { height: 100%; opacity: 0; } }
+@keyframes vent-ink-away { 0%, 18% { opacity: 1; filter: blur(0); } 62% { opacity: .72; filter: blur(1px); } 100% { opacity: 0; filter: blur(6px); } }
+@keyframes vent-flame-rise { from { transform: scaleY(.48) translateY(5px) scaleX(.9); opacity: .55; } to { transform: scaleY(1) translateY(-9px) scaleX(1.08); opacity: 1; } }
+@keyframes vent-ash-rise { 0% { transform: translate(0,0) scale(.55); opacity: 0; } 20% { opacity: .9; } 100% { transform: translate(12px,-115px) scale(1.35); opacity: 0; } }
 @keyframes vent-arrive { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 720px) {
   .topbar-right { gap: 8px; }
@@ -432,7 +466,10 @@ h1 { margin-bottom: 7px; font-size: clamp(22px, 2.6vw, 29px); font-weight: 650; 
   .vent-dialog { padding: 25px 22px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .vent-trigger, .vent-thought.is-burning, .vent-aftercare { transition-duration: .01ms; animation-duration: .01ms; }
+  .vent-trigger { transition-duration: .01ms; }
+  .vent-paper-burning.is-burning, .vent-paper-burning.is-burning::before, .vent-paper-burning.is-burning::after,
+  .vent-paper-burning.is-burning .vent-thought, .vent-paper-burning.is-burning .vent-flame,
+  .vent-paper-burning.is-burning .vent-ash, .vent-aftercare { animation-duration: .01ms; }
 }
 
 @media (max-width: 720px) {

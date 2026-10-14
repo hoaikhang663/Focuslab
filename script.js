@@ -25,11 +25,11 @@
   ];
   const MIN_FOCUS_MINUTES = 15;
   const VENT_MESSAGES = [
-    "Bạn đã tạo khoảng trống mới. Hãy bắt đầu từ một bước nhỏ.",
-    "Không cần giải quyết tất cả ngay bây giờ. Chỉ cần tập trung vào điều tiếp theo.",
-    "Hít một hơi thật chậm. Bạn có thể bắt đầu lại từ đây.",
-    "Một phút tập trung cũng là một khởi đầu đáng quý.",
-    "Bạn đã dành thời gian để lắng nghe chính mình. Giờ hãy chọn điều quan trọng nhất."
+    "Your mind is clear. Let's focus on what truly matters.",
+    "You don't have to solve everything right now. Just take the next small step.",
+    "Take one slow breath. You can begin again from here.",
+    "One focused minute is a meaningful start.",
+    "You've made space to listen to yourself. Now choose what matters most."
   ];
   const HABIT_COLORS = ["#ff8a3d", "#77c69d", "#7da5e8", "#b39bdd", "#df8f9a"];
   const DATA_VERSION = 2;
@@ -2507,6 +2507,7 @@
     $("#vent-burn-stage").hidden = true;
     $("#vent-thought").textContent = "";
     $("#vent-thought").classList.remove("is-burning");
+    $("#vent-paper-burning").classList.remove("is-burning");
     $("#vent-aftercare").hidden = true;
     $("#vent-positive-message").textContent = "";
   }
@@ -2537,19 +2538,21 @@
     $("#vent-thought").textContent = thought;
     $("#vent-compose").hidden = true;
     $("#vent-burn-stage").hidden = false;
+    $("#vent-burn-button").disabled = true;
     $("#vent-thought-input").value = "";
-    requestAnimationFrame(() => $("#vent-thought").classList.add("is-burning"));
+    requestAnimationFrame(() => $("#vent-paper-burning").classList.add("is-burning"));
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     ventBurnTimer = window.setTimeout(() => {
       $("#vent-thought").textContent = "";
       $("#vent-burn-stage").hidden = true;
+      $("#vent-paper-burning").classList.remove("is-burning");
       $("#vent-positive-message").textContent = VENT_MESSAGES[Math.floor(Math.random() * VENT_MESSAGES.length)];
       $("#vent-aftercare").hidden = false;
       $("#vent-ready-button").focus();
       ventBurnInProgress = false;
       ventBurnTimer = 0;
-    }, reducedMotion ? 20 : 780);
+    }, reducedMotion ? 20 : 1550);
   }
 
   function resetHabitForm() {
