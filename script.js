@@ -5,6 +5,7 @@
   const TIMER_KEY = "focusforge.timer.v1";
   const CALENDAR_STORAGE_KEY = "focusforge.calendar.v1";
   const CLOUD_OWNER_KEY = "focusforge.cloud-owner.v1";
+  const THEME_STORAGE_KEY = "focusforge.theme.v1";
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyAMOy4RdnOTYVDfMIWUntTmNcZ8oYiEuxM",
     authDomain: "focusforge-dce04.firebaseapp.com",
@@ -31,6 +32,15 @@
     "One focused minute is a meaningful start.",
     "You've made space to listen to yourself. Now choose what matters most."
   ];
+  const PRESET_THEMES = [
+    { id: "pine-mist", name: "Pine & Mist", description: "Pine green · mist", icon: "✦", colors: { bg: "#101915", surface: "#17221d", raised: "#1d2c25", line: "#304137", lineSoft: "#27352c", text: "#edf2ec", muted: "#a0afa4", accent: "#9dbd92", secondary: "#668879", green: "#a4d4ae" } },
+    { id: "cyberpunk-observatory", name: "Cyberpunk Observatory", description: "Neon blue · aurora violet", icon: "◈", colors: { bg: "#10111e", surface: "#1a1b2c", raised: "#22243a", line: "#383750", lineSoft: "#2b2c42", text: "#f0efff", muted: "#a5a4bd", accent: "#bb82ff", secondary: "#58d9ef", green: "#76e2c0" } },
+    { id: "vintage-library", name: "Vintage Library", description: "Mahogany · amber light", icon: "▤", colors: { bg: "#19140f", surface: "#241c15", raised: "#30241a", line: "#49392b", lineSoft: "#382c21", text: "#f3e9db", muted: "#b9a893", accent: "#dfa65f", secondary: "#9f6748", green: "#a6b77c" } },
+    { id: "rainy-solitude", name: "Rainy Solitude", description: "Rain cloud · water blue", icon: "⌁", colors: { bg: "#11171b", surface: "#1a2429", raised: "#222f35", line: "#34454b", lineSoft: "#293940", text: "#e9f0f1", muted: "#9eafb4", accent: "#83c2cf", secondary: "#658ca5", green: "#91c7ac" } },
+    { id: "maple-autumn", name: "Maple Autumn", description: "Maple orange · brick red", icon: "✺", colors: { bg: "#1b1413", surface: "#281d1a", raised: "#342420", line: "#4b332c", lineSoft: "#3a2925", text: "#f3e9e4", muted: "#b8a39c", accent: "#ec9562", secondary: "#a84e42", green: "#a8b27c" } }
+  ];
+  const DEFAULT_THEME_STORE = { selectedId: "pine-mist", customThemes: [] };
+  let themeStore = { ...DEFAULT_THEME_STORE, customThemes: [] };
   const HABIT_COLORS = ["#ff8a3d", "#77c69d", "#7da5e8", "#b39bdd", "#df8f9a"];
   const DATA_VERSION = 2;
   const PAGE_NAMES = {
@@ -149,6 +159,170 @@
     toast.classList.add("show");
     window.clearTimeout(state.toastTimeout);
     state.toastTimeout = window.setTimeout(() => toast.classList.remove("show"), 4000);
+  }
+
+  function allThemes() {
+    return [...PRESET_THEMES, ...themeStore.customThemes];
+  }
+
+  function validTheme(theme) {
+    return isPlainObject(theme) && typeof theme.id === "string" && /^custom-[\w-]{1,80}$/.test(theme.id)
+      && typeof theme.name === "string" && theme.name.trim().length > 0 && theme.name.length <= 32
+      && typeof theme.description === "string" && theme.description.length <= 80 && isPlainObject(theme.colors)
+      && ["bg", "surface", "raised", "line", "lineSoft", "text", "muted", "accent", "secondary", "green"]
+        .every((key) => typeof theme.colors[key] === "string" && /^#[0-9a-f]{6}$/i.test(theme.colors[key]));
+  }
+
+  function applyTheme(theme) {
+    const root = document.documentElement;
+    const { colors } = theme;
+    const vars = {
+      "--bg": colors.bg,
+      "--surface": colors.surface,
+      "--surface-raised": colors.raised,
+      "--line": colors.line,
+      "--line-soft": colors.lineSoft,
+      "--text": colors.text,
+      "--muted": colors.muted,
+      "--accent": colors.accent,
+      "--accent-soft": `${colors.accent}20`,
+      "--green": colors.green,
+      "--wallpaper-overlay": `radial-gradient(ellipse at 83% 9%, ${colors.accent}25 0, transparent 39%), radial-gradient(ellipse at 9% 77%, ${colors.secondary}18 0, transparent 42%)`
+    };
+    Object.entries(vars).forEach(([name, value]) => root.style.setProperty(name, value));
+    root.dataset.theme = theme.id;
+  }
+
+  function loadThemeStore() {
+    try {
+      const raw = localStorage.getItem(THEME_STORAGE_KEY);
+      if (raw === null) return;
+      const parsed = JSON.parse(raw);
+      if (!isPlainObject(parsed) || typeof parsed.selectedId !== "string" || !Array.isArray(parsed.customThemes)
+        || parsed.customThemes.length > 20 || !parsed.customThemes.every(validTheme)
+        || new Set(parsed.customThemes.map((theme) => theme.id)).size !== parsed.customThemes.length) {
+        throw new Error("Theme preferences are invalid.");
+      }
+      const available = [...PRESET_THEMES, ...parsed.customThemes];
+      if (!available.some((theme) => theme.id === parsed.selectedId)) throw new Error("Selected theme was not found.");
+      themeStore = { selectedId: parsed.selectedId, customThemes: parsed.customThemes };
+    } catch (error) {
+      showToast(`Không thể đọc tùy chọn theme đã lưu; dữ liệu gốc được giữ nguyên. ${error.message}`, true);
+    }
+  }
+
+  function saveThemeStore() {
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(themeStore));
+      return true;
+    } catch (error) {
+      showToast(`Không thể lưu theme trên thiết bị: ${error.message}`, true);
+      return false;
+    }
+  }
+
+  function renderThemes() {
+    const list = $("#theme-list");
+    if (!list) return;
+    list.replaceChildren();
+    allThemes().forEach((theme) => {
+      const selected = themeStore.selectedId === theme.id;
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = `theme-card${selected ? " is-selected" : ""}`;
+      card.dataset.themeId = theme.id;
+      card.setAttribute("aria-pressed", String(selected));
+      card.setAttribute("aria-label", `${theme.name}${selected ? ", Selected" : ""}`);
+      card.style.setProperty("--theme-accent", theme.colors.accent);
+      card.style.setProperty("--theme-secondary", theme.colors.secondary);
+
+      const thumbnail = document.createElement("span");
+      thumbnail.className = `theme-thumbnail theme-thumbnail-${theme.id}`;
+      thumbnail.setAttribute("aria-hidden", "true");
+      const motif = document.createElement("span");
+      motif.className = "theme-thumbnail-motif";
+      const motifLine = document.createElement("span");
+      motifLine.className = "theme-thumbnail-line";
+      const motifDot = document.createElement("span");
+      motifDot.className = "theme-thumbnail-dot";
+      thumbnail.append(motif, motifLine, motifDot);
+
+      const copy = document.createElement("span");
+      copy.className = "theme-card-copy";
+      const name = document.createElement("strong");
+      name.textContent = theme.name;
+      const description = document.createElement("small");
+      description.textContent = theme.description;
+      const palette = document.createElement("span");
+      palette.className = "theme-palette";
+      ["bg", "surface", "accent", "secondary", "green"].forEach((key) => {
+        const dot = document.createElement("i");
+        dot.style.backgroundColor = theme.colors[key];
+        dot.setAttribute("aria-hidden", "true");
+        palette.append(dot);
+      });
+      copy.append(name, description, palette);
+
+      const selectedLabel = document.createElement("span");
+      selectedLabel.className = "theme-selected-label";
+      selectedLabel.textContent = "Selected";
+      selectedLabel.hidden = !selected;
+      card.append(thumbnail, copy, selectedLabel);
+      list.append(card);
+    });
+  }
+
+  function selectTheme(themeId) {
+    const theme = allThemes().find((item) => item.id === themeId);
+    if (!theme) return;
+    const previousId = themeStore.selectedId;
+    themeStore.selectedId = theme.id;
+    applyTheme(theme);
+    if (!saveThemeStore()) {
+      themeStore.selectedId = previousId;
+      applyTheme(allThemes().find((item) => item.id === previousId) || PRESET_THEMES[0]);
+      return;
+    }
+    renderThemes();
+  }
+
+  function createCustomTheme(event) {
+    event.preventDefault();
+    const form = $("#custom-theme-form");
+    if (!form.reportValidity()) return;
+    if (themeStore.customThemes.length >= 20) {
+      showToast("Đã đạt giới hạn 20 theme tùy chỉnh.", true);
+      return;
+    }
+    const name = $("#custom-theme-name").value.trim();
+    const accent = $("#custom-theme-accent").value;
+    if (!name || !/^#[0-9a-f]{6}$/i.test(accent)) {
+      showToast("Nhập tên theme và màu nhấn hợp lệ.", true);
+      return;
+    }
+    const theme = {
+      id: `custom-${newId()}`,
+      name,
+      description: "Custom palette",
+      colors: { bg: "#111214", surface: "#1a1b1e", raised: "#202125", line: "#303136", lineSoft: "#292a2e", text: "#f2f0eb", muted: "#a1a1a8", accent, secondary: "#7f8f75", green: "#77c69d" }
+    };
+    if (!validTheme(theme)) {
+      showToast("Không thể tạo theme với thông tin hiện tại.", true);
+      return;
+    }
+    const previousStore = themeStore;
+    themeStore = { selectedId: theme.id, customThemes: [...themeStore.customThemes, theme] };
+    applyTheme(theme);
+    if (!saveThemeStore()) {
+      themeStore = previousStore;
+      applyTheme(allThemes().find((item) => item.id === themeStore.selectedId) || PRESET_THEMES[0]);
+      return;
+    }
+    form.reset();
+    $("#custom-theme-form").hidden = true;
+    $("#create-theme-toggle").setAttribute("aria-expanded", "false");
+    renderThemes();
+    showToast(`Đã tạo và áp dụng theme “${theme.name}”.`);
   }
 
   function saveData(options = {}) {
@@ -2397,6 +2571,7 @@
     renderTasks();
     renderExplore();
     renderCalendarAndSchedules();
+    renderThemes();
     $("#daily-goal").value = state.data.settings.dailyGoalMinutes;
     $("#default-duration").value = state.data.settings.defaultDurationMinutes;
   }
@@ -2939,6 +3114,24 @@
       else if (target.dataset.habitDelete) deleteHabit(target.dataset.habitDelete);
     });
     $("#settings-form").addEventListener("submit", saveSettings);
+    $("#theme-list").addEventListener("click", (event) => {
+      const card = event.target.closest("[data-theme-id]");
+      if (card) selectTheme(card.dataset.themeId);
+    });
+    $("#create-theme-toggle").addEventListener("click", () => {
+      const form = $("#custom-theme-form");
+      const expanded = form.hidden;
+      form.hidden = !expanded;
+      $("#create-theme-toggle").setAttribute("aria-expanded", String(expanded));
+      if (expanded) $("#custom-theme-name").focus();
+    });
+    $("#custom-theme-cancel").addEventListener("click", () => {
+      $("#custom-theme-form").reset();
+      $("#custom-theme-form").hidden = true;
+      $("#create-theme-toggle").setAttribute("aria-expanded", "false");
+      $("#create-theme-toggle").focus();
+    });
+    $("#custom-theme-form").addEventListener("submit", createCustomTheme);
     $("#export-data").addEventListener("click", exportData);
     $("#import-data").addEventListener("change", importData);
     $("#clear-data").addEventListener("click", clearAllData);
@@ -3547,6 +3740,8 @@
 
   function init() {
     initAudioWidget();
+    loadThemeStore();
+    applyTheme(allThemes().find((theme) => theme.id === themeStore.selectedId) || PRESET_THEMES[0]);
     $("#today-label").textContent = new Intl.DateTimeFormat("vi-VN", { weekday: "short", day: "numeric", month: "short" }).format(new Date());
     loadData();
     loadCalendarSchedules();

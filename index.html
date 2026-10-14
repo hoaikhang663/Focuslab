@@ -381,6 +381,19 @@
 
         <section class="page placeholder-page" id="page-settings" aria-labelledby="settings-title" hidden>
           <div class="welcome-row"><div><p class="eyebrow">THIẾT LẬP KHÔNG GIAN CỦA BẠN</p><h1 id="settings-title">Cài đặt</h1><p class="page-description">Tùy chỉnh mục tiêu và quản lý dữ liệu của FocusForge.</p></div></div>
+          <article class="panel theme-customizer">
+            <div class="section-heading theme-heading">
+              <div><p class="panel-kicker">PERSONALIZE YOUR SPACE</p><h2>Preset Themes</h2><p class="theme-intro">Chọn một bảng màu và không khí phù hợp với nhịp học của bạn.</p></div>
+              <button class="button button-primary" id="create-theme-toggle" type="button" aria-expanded="false" aria-controls="custom-theme-form">Create Custom Theme</button>
+            </div>
+            <form class="custom-theme-form" id="custom-theme-form" hidden>
+              <label class="theme-field" for="custom-theme-name"><span>Tên theme</span><input class="text-input" id="custom-theme-name" maxlength="32" placeholder="Ví dụ: Morning Focus" required></label>
+              <label class="theme-field theme-color-field" for="custom-theme-accent"><span>Màu nhấn</span><input id="custom-theme-accent" type="color" value="#9dbd92"></label>
+              <button class="button button-outline" type="submit">Tạo theme</button>
+              <button class="button button-outline" id="custom-theme-cancel" type="button">Hủy</button>
+            </form>
+            <div class="theme-list" id="theme-list" role="group" aria-label="Danh sách theme"></div>
+          </article>
           <div class="settings-grid"><article class="panel settings-panel"><p class="panel-kicker">MỤC TIÊU HẰNG NGÀY</p><h2>Thiết lập nhịp độ</h2><form id="settings-form"><label class="settings-field"><span>Mục tiêu Focus mỗi ngày (phút)</span><input class="text-input" id="daily-goal" type="number" min="15" max="600" step="5" required></label><label class="settings-field"><span>Thời lượng phiên mặc định (phút)</span><input class="text-input" id="default-duration" type="number" min="1" max="180" required></label><p class="settings-note">Một phiên được tính là hợp lệ khi đạt ít nhất 15 phút Focus thực tế. Mục tiêu streak không thấp hơn 15 phút.</p><button class="button button-primary" type="submit">Lưu cài đặt</button></form></article>
           <article class="panel settings-panel"><p class="panel-kicker">SAO LƯU VÀ KHÔI PHỤC</p><h2>Dữ liệu của bạn</h2><p class="settings-note">Xuất dữ liệu để sao lưu hoặc nhập tệp FocusForge JSON hợp lệ. Dữ liệu hiện tại chỉ được thay thế sau khi kiểm tra tệp thành công.</p><div class="settings-actions"><button class="button button-outline" id="export-data" type="button">Xuất JSON</button><label class="button button-outline file-button" for="import-data">Nhập JSON</label><input id="import-data" type="file" accept="application/json,.json" hidden></div><div class="danger-zone"><div><strong>Xóa toàn bộ dữ liệu</strong><small>Phiên Focus, thói quen, XP và thành tích</small></div><button class="button button-danger" id="clear-data" type="button">Xóa dữ liệu</button></div></article></div>
         </section>
