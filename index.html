@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101114">
+  <meta name="description" content="FocusForge — không gian rèn luyện khả năng tập trung, thói quen và kỷ luật cá nhân.">
+  <title>FocusForge — Rèn luyện sự tập trung</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#overview" data-page-link="overview" aria-label="FocusForge — Tổng quan">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none"><path d="M17.8 3.5c1.1 5.6-4.9 7.1-4.9 12.1 0 1.8 1.1 3.2 2.7 3.8-.3-2.5 1-4.2 3-5.5 3.1 2.3 5.1 5.2 5.1 8.2a8.1 8.1 0 0 1-16.2 0c0-4.7 3.3-8.5 6.1-11.3-.2 3.5 1.3 4.1 1.3 4.1 0-4.7 3-7.5 2.9-11.4Z" fill="currentColor"/></svg>
+        </span>
+        <span class="brand-copy"><strong>FocusForge</strong><small>BUILD YOUR FOCUS</small></span>
+      </a>
+
+      <div class="sidebar-label">KHÔNG GIAN CỦA BẠN</div>
+      <nav class="main-nav" aria-label="Điều hướng chính">
+        <a class="nav-link active" href="#overview" data-page-link="overview" aria-current="page"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="2.5" width="6" height="6" rx="1.4"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.4"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.4"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.4"/></svg><span>Overview</span></a>
+        <a class="nav-link" href="#tasks" data-page-link="tasks"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5.5h10M5 10h10M5 14.5h7"/><path d="M14.5 12.3 16 13.8l2.5-3.1"/></svg><span>Tasks</span></a>
+        <a class="nav-link" href="#focus" data-page-link="focus"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.25"/><path d="M10 5.8v4.5l3 1.7"/></svg><span>Focus</span><span class="nav-arrow" aria-hidden="true">↗</span></a>
+        <a class="nav-link" href="#explore" data-page-link="explore"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m3 15 5.1-5.1 3.5 3.5L17 6.8"/><path d="M14.9 6.3h2.1v2.1"/></svg><span>Explore</span></a>
+        <a class="nav-link" href="#statistics" data-page-link="statistics"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 16.5V10m4.7 6.5V4m4.6 12.5V7m4.7 9.5V2.8"/></svg><span>Statistics</span></a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <a class="nav-link settings-link" href="#settings" data-page-link="settings"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8.2 2.8h3.6l.5 2a5.7 5.7 0 0 1 1.2.7l2-.7 1.8 3.1-1.5 1.4v1.4l1.5 1.4-1.8 3.1-2-.7a5.7 5.7 0 0 1-1.2.7l-.5 2H8.2l-.5-2a5.7 5.7 0 0 1-1.2-.7l-2 .7-1.8-3.1 1.5-1.4V9.3L2.7 7.9l1.8-3.1 2 .7a5.7 5.7 0 0 1 1.2-.7l.5-2Z"/><circle cx="10" cy="10" r="2.4"/></svg><span>Cài đặt</span></a>
+        <div class="profile-card">
+          <span class="profile-avatar">FF</span>
+          <span class="profile-copy"><strong>Không gian cá nhân</strong><small>Dữ liệu trên thiết bị</small></span>
+          <span class="local-indicator" title="Chạy cục bộ"></span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Mở điều hướng" aria-expanded="false" aria-controls="sidebar">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="topbar-context"><span class="context-dot"></span><span>Không gian cá nhân</span><span class="context-divider">/</span><strong id="current-page-label">Tổng quan</strong></div>
+        <div class="topbar-right">
+          <!-- Lo-fi Player & Ambient Sounds widget -->
+          <div class="audio-widget" id="audio-widget">
+            <button class="audio-widget-toggle" id="audio-widget-toggle" type="button" aria-label="Open Lo-fi Player & Ambient Sounds" aria-expanded="false" aria-controls="audio-popover">
+              <svg class="audio-widget-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 15V4l9-2v11"/><circle cx="5.5" cy="15.5" r="2.5"/><circle cx="14.5" cy="13.5" r="2.5"/></svg>
+              <span class="audio-widget-equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            </button>
+            <section class="audio-popover" id="audio-popover" aria-label="Lo-fi Player & Ambient Sounds" hidden>
+              <div class="audio-popover-heading">
+                <div><p class="panel-kicker">YOUR SOUNDSPACE</p><h2>Lo-fi Player &amp; Ambient Sounds</h2></div>
+                <button class="audio-close button button-outline" id="audio-close" type="button" aria-label="Close audio player">×</button>
+              </div>
+              <div class="audio-source-tabs" role="tablist" aria-label="Playback source">
+                <button class="audio-source-tab active" id="audio-source-system-tab" type="button" role="tab" aria-selected="true" aria-controls="audio-source-system" tabindex="0" data-audio-source="system">Hệ thống</button>
+                <button class="audio-source-tab" id="audio-source-youtube-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-source-youtube" tabindex="-1" data-audio-source="youtube">YouTube</button>
+              </div>
+              <section class="audio-source-panel" id="audio-source-system" role="tabpanel" aria-labelledby="audio-source-system-tab">
+                <div class="audio-tabs" role="tablist" aria-label="System audio type">
+                  <button class="filter-btn audio-tab active" id="audio-system-lofi-tab" type="button" role="tab" aria-selected="true" aria-controls="audio-system-lofi" tabindex="0" data-audio-tab="lofi">Lo-fi Music</button>
+                  <button class="filter-btn audio-tab" id="audio-system-ambient-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-system-ambient" tabindex="-1" data-audio-tab="ambient">Ambient Sounds</button>
+                </div>
+                <div class="audio-panel" id="audio-system-lofi" role="tabpanel" aria-labelledby="audio-system-lofi-tab">
+                  <div class="audio-filters" role="group" aria-label="Filter lo-fi music">
+                    <button class="filter-btn active" type="button" data-audio-filter="all" aria-pressed="true">All</button>
+                    <button class="filter-btn" type="button" data-audio-filter="chill" aria-pressed="false">Chill &amp; Relax</button>
+                    <button class="filter-btn" type="button" data-audio-filter="coffee" aria-pressed="false">Coffee &amp; Jazz</button>
+                    <button class="filter-btn" type="button" data-audio-filter="sleep" aria-pressed="false">Sleep &amp; Calm</button>
+                    <button class="filter-btn" type="button" data-audio-filter="study" aria-pressed="false">Study &amp; Focus</button>
+                  </div>
+                  <div class="audio-track-list" id="audio-local-track-list" aria-live="polite"></div>
+                </div>
+                <div class="audio-panel" id="audio-system-ambient" role="tabpanel" aria-labelledby="audio-system-ambient-tab" hidden>
+                  <p class="audio-ambient-intro">Layer local ambient sounds with your music.</p>
+                  <div class="audio-ambient-list" id="audio-local-ambient-list"></div>
+                </div>
+              </section>
+              <section class="audio-source-panel" id="audio-source-youtube" role="tabpanel" aria-labelledby="audio-source-youtube-tab" hidden>
+                <p class="audio-youtube-warning" id="audio-youtube-warning" hidden>Hãy mở bằng http://localhost để phát YouTube</p>
+                <div class="audio-tabs" role="tablist" aria-label="YouTube audio type">
+                  <button class="filter-btn audio-tab active" id="audio-youtube-lofi-tab" type="button" role="tab" aria-selected="true" aria-controls="audio-youtube-lofi" tabindex="0" data-audio-tab="lofi">Lo-fi Music</button>
+                  <button class="filter-btn audio-tab" id="audio-youtube-ambient-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-youtube-ambient" tabindex="-1" data-audio-tab="ambient">Ambient Sounds</button>
+                </div>
+                <div class="audio-panel" id="audio-youtube-lofi" role="tabpanel" aria-labelledby="audio-youtube-lofi-tab">
+                  <form class="audio-youtube-form" id="audio-youtube-form" novalidate>
+                    <label for="audio-youtube-url">YouTube URL or video ID</label>
+                    <div class="audio-youtube-add-row">
+                      <input class="text-input" id="audio-youtube-url" type="text" autocomplete="off" placeholder="Paste a YouTube link" aria-describedby="audio-youtube-error">
+                      <select class="text-input" id="audio-youtube-category" aria-label="YouTube category">
+                        <option value="chill">Chill &amp; Relax</option><option value="coffee">Coffee &amp; Jazz</option><option value="sleep">Sleep &amp; Calm</option><option value="study" selected>Study &amp; Focus</option><option value="ambient">Ambient</option>
+                      </select>
+                      <button class="button button-primary" type="submit">Thêm</button>
+                    </div>
+                    <small class="audio-form-error" id="audio-youtube-error" role="alert"></small>
+                  </form>
+                  <div class="audio-filters" role="group" aria-label="Filter YouTube music">
+                    <button class="filter-btn active" type="button" data-youtube-filter="all" aria-pressed="true">All</button>
+                    <button class="filter-btn" type="button" data-youtube-filter="chill" aria-pressed="false">Chill &amp; Relax</button>
+                    <button class="filter-btn" type="button" data-youtube-filter="coffee" aria-pressed="false">Coffee &amp; Jazz</button>
+                    <button class="filter-btn" type="button" data-youtube-filter="sleep" aria-pressed="false">Sleep &amp; Calm</button>
+                    <button class="filter-btn" type="button" data-youtube-filter="study" aria-pressed="false">Study &amp; Focus</button>
+                  </div>
+                  <div class="audio-track-list" id="audio-youtube-track-list" aria-live="polite"></div>
+                </div>
+                <div class="audio-panel" id="audio-youtube-ambient" role="tabpanel" aria-labelledby="audio-youtube-ambient-tab" hidden>
+                  <p class="audio-ambient-intro">YouTube ambient videos loop independently and can mix with either music source.</p>
+                  <div class="audio-ambient-list" id="audio-youtube-ambient-list"></div>
+                </div>
+                <p class="audio-youtube-note">Có thể có quảng cáo, và một số video không cho nhúng.</p>
+              </section>
+              <div class="audio-mini-player" aria-label="Shared music player">
+                <div class="audio-mini-track"><strong id="audio-mini-title">No track selected</strong><span id="audio-mini-status" class="range-label">Paused</span></div>
+                <div class="audio-mini-seek" id="audio-mini-seek-wrap">
+                  <span id="audio-mini-current">0:00</span><input id="audio-mini-seek" type="range" min="0" max="0" step="0.1" value="0" aria-label="Seek current track"><span id="audio-mini-duration">0:00</span>
+                </div>
+                <span class="audio-live-label" id="audio-live-label" hidden>LIVE</span>
+                <div class="audio-mini-controls">
+                  <div class="audio-transport">
+                    <button class="button button-outline audio-transport-button" id="audio-prev" type="button" aria-label="Previous track">|‹</button>
+                    <button class="button button-outline audio-transport-button" id="audio-play" type="button" aria-label="Play selected track" disabled>▶</button>
+                    <button class="button button-outline audio-transport-button" id="audio-next" type="button" aria-label="Next track">›|</button>
+                  </div>
+                  <label class="audio-volume-control" for="audio-music-volume"><span>Music volume</span><input id="audio-music-volume" type="range" min="0" max="1" step="0.01" aria-label="Music volume"></label>
+                </div>
+              </div>
+              <div class="audio-youtube-player-host" id="audio-youtube-player-host" aria-hidden="true"></div>
+            </section>
+          </div>
+          <span class="topbar-date" id="today-label"></span><span class="topbar-avatar" aria-hidden="true">FF</span>
+        </div>
+      </header>
+
+      <div class="content-wrap">
+        <section class="page active" id="page-overview" aria-labelledby="overview-title">
+          <div class="welcome-row">
+            <div><p class="eyebrow">THỨC DẬY TIỀM NĂNG CỦA BẠN</p><h1 id="overview-title">Từng bước, tập trung hơn.</h1><p class="page-description">Xây dựng kỷ luật bằng những điều nhỏ bạn làm mỗi ngày.</p></div>
+            <a class="button button-primary" href="#focus" data-page-link="focus"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5 3.5 7 4.5-7 4.5v-9Z" fill="currentColor"/></svg>Bắt đầu Focus</a>
+          </div>
+
+          <div class="stats-grid" aria-label="Tổng quan tiến độ">
+            <article class="stat-card"><div class="stat-heading"><span>Streak hiện tại</span><span class="stat-icon flame-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 2.5c1.2 5.3-4.6 6.7-4.6 11.5 0 1.3.6 2.4 1.7 3-.2-2.2 1-3.7 2.7-4.8 2.8 2.1 4.4 4.5 4.4 7.1a6.4 6.4 0 1 1-12.8 0c0-4.1 2.8-7.5 5.4-10-.2 3.1 1.1 3.7 1.1 3.7 0-4.2 2.5-6.7 2.1-10.5Z"/></svg></span></div><div class="stat-value" id="overview-streak">0 <small>ngày</small></div><div class="stat-foot muted" id="overview-streak-foot">Đạt mục tiêu Focus mỗi ngày</div></article>
+            <article class="stat-card"><div class="stat-heading"><span>Focus hôm nay</span><span class="stat-icon focus-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 5.8v4.5l3 1.7"/></svg></span></div><div class="stat-value" id="overview-focus">0 <small>phút</small></div><div class="stat-foot muted" id="overview-focus-foot">Mục tiêu hằng ngày</div></article>
+            <article class="stat-card"><div class="stat-heading"><span>Thói quen hôm nay</span><span class="stat-icon habit-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10.5 3.7 3.7L16 5.9"/></svg></span></div><div class="stat-value" id="overview-habits">0 <small>/ 0</small></div><div class="stat-foot muted">Đã hoàn thành hôm nay</div></article>
+            <article class="stat-card"><div class="stat-heading"><span>Kỷ luật hôm nay</span><span class="stat-icon discipline-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 15.5 8 11l3 2.5 5.5-7"/><path d="M12.5 6.5h4v4"/></svg></span></div><div class="stat-value" id="overview-discipline">0 <small>%</small></div><div class="stat-foot muted" id="overview-xp">0 XP · Level 1</div></article>
+          </div>
+
+          <article class="panel activity-panel">
+            <div class="section-heading activity-heading">
+              <div class="activity-title"><span class="activity-mark" aria-hidden="true">⌁</span><div><p class="panel-kicker">YOUR LEARNING RHYTHM</p><h2>Focus Activity</h2></div></div>
+              <div class="activity-tools"><span class="activity-total" id="activity-year-summary"></span><label class="activity-year-label" for="activity-year">Year</label><select id="activity-year" class="activity-year-select" aria-label="Select activity year"></select></div>
+            </div>
+            <div class="activity-scroll" id="activity-scroll" tabindex="0" aria-label="Activity calendar, scroll horizontally">
+              <div class="activity-calendar" id="activity-calendar"></div>
+            </div>
+            <div class="activity-footer"><span class="activity-hint">Select a day to view details</span><div class="activity-legend"><span>Less</span><i class="activity-cell level-0"></i><i class="activity-cell level-1"></i><i class="activity-cell level-2"></i><i class="activity-cell level-3"></i><i class="activity-cell level-4"></i><span>More</span></div></div>
+            <div class="activity-detail" id="activity-detail" aria-live="polite"></div>
+          </article>
+
+          <div class="dashboard-grid">
+            <article class="panel focus-card">
+              <div class="panel-head"><div><p class="panel-kicker">KHÔNG GIAN TẬP TRUNG</p><h2>Phiên Focus tiếp theo</h2><p>Chọn một việc quan trọng. Dành trọn sự chú ý cho nó.</p></div><span class="focus-emblem" aria-hidden="true"><svg viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="21" stroke="currentColor" stroke-opacity=".18" stroke-width="1.5"/><circle cx="26" cy="26" r="15" stroke="currentColor" stroke-opacity=".4" stroke-width="1.5"/><path d="M26 17v9l6 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+              <div class="focus-card-bottom"><div class="focus-length"><span>Thời lượng mặc định</span><strong id="overview-default-duration">25 <small>phút</small></strong></div><a href="#focus" data-page-link="focus" class="button button-outline">Mở Focus <span aria-hidden="true">↗</span></a></div>
+            </article>
+
+            <article class="panel streak-card">
+              <div class="panel-head"><div><p class="panel-kicker">GIỮ NHỊP MỖI NGÀY</p><h2>Hành trình kỷ luật</h2><p id="streak-caption">Mục tiêu hằng ngày được tính từ Focus hợp lệ.</p></div><span class="streak-flame" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M17.8 3.5c1.1 5.6-4.9 7.1-4.9 12.1 0 1.8 1.1 3.2 2.7 3.8-.3-2.5 1-4.2 3-5.5 3.1 2.3 5.1 5.2 5.1 8.2a8.1 8.1 0 0 1-16.2 0c0-4.7 3.3-8.5 6.1-11.3-.2 3.5 1.3 4.1 1.3 4.1 0-4.7 3-7.5 2.9-11.4Z"/></svg></span></div>
+              <div class="week-days" id="overview-week" aria-label="Lịch 7 ngày gần nhất"></div>
+            </article>
+          </div>
+
+          <div class="calendar-schedule-grid">
+            <article class="panel calendar-panel">
+              <div class="section-heading calendar-heading">
+                <div><p class="panel-kicker">PERSONAL CALENDAR</p><h2 id="calendar-month-label">October 2026</h2></div>
+                <div class="calendar-controls">
+                  <button class="calendar-nav-button" id="calendar-today" type="button">Today</button>
+                  <button class="calendar-nav-button" id="calendar-prev" type="button" aria-label="Previous month">‹</button>
+                  <button class="calendar-nav-button" id="calendar-next" type="button" aria-label="Next month">›</button>
+                </div>
+              </div>
+              <div class="calendar-weekdays" aria-hidden="true"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
+              <div class="calendar-days" id="calendar-days" role="grid" aria-label="Monthly calendar"></div>
+              <button class="button button-primary calendar-add-button" id="schedule-add" type="button">+ Add Schedule</button>
+            </article>
+            <article class="panel schedule-panel">
+              <div class="section-heading"><div><p class="panel-kicker">YOUR PLAN</p><h2 id="schedule-day-label">Today's Schedule</h2></div><span class="range-label" id="schedule-count">0 activities</span></div>
+              <div id="schedule-list" class="schedule-list"></div>
+            </article>
+          </div>
+
+          <div class="lower-grid">
+            <article class="panel weekly-panel"><div class="section-heading"><div><p class="panel-kicker">NHÌN LẠI TIẾN ĐỘ</p><h2>Thời gian tập trung</h2></div><span class="range-label">7 ngày gần nhất</span></div>
+              <div id="overview-chart" class="chart-empty"><span class="empty-chart-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V12m5 7V5m5 14v-9m5 9V3"/></svg></span><strong>Biểu đồ sẽ được tạo từ dữ liệu của bạn</strong><span>Hoàn thành phiên Focus đầu tiên để bắt đầu theo dõi.</span></div>
+            </article>
+            <article class="panel habits-panel"><div class="section-heading"><div><p class="panel-kicker">MỖI NGÀY MỘT CHÚT</p><h2>Thói quen hôm nay</h2></div><a href="#habits" data-page-link="habits" class="subtle-link">Xem tất cả <span aria-hidden="true">→</span></a></div>
+              <div class="empty-habits" id="overview-habits-list"><span class="habit-check" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m4 10 4 4 8-8"/></svg></span><strong>Chưa có thói quen nào</strong><span>Tạo một thói quen nhỏ để bắt đầu xây dựng nhịp độ.</span><a href="#habits" data-page-link="habits" class="subtle-link">Đến mục Thói quen <span aria-hidden="true">→</span></a></div>
+            </article>
+          </div>
+          <footer class="page-footer"><span class="footer-brand">FocusForge</span><span>Rèn luyện sự tập trung, từng ngày.</span><span class="footer-local"><i></i> Chỉ lưu trên thiết bị này</span></footer>
+        </section>
+
+        <section class="page placeholder-page" id="page-focus" aria-labelledby="focus-title" hidden>
+          <div class="welcome-row"><div><p class="eyebrow">TẠO KHOẢNG LẶNG, LÀM ĐIỀU QUAN TRỌNG</p><h1 id="focus-title">Focus</h1><p class="page-description">Dành thời gian cho một nhiệm vụ, không xao nhãng.</p></div></div>
+          <div class="focus-workspace">
+            <article class="panel timer-setup" id="timer-setup"><p class="panel-kicker">PHIÊN TẬP TRUNG</p><h2>Chọn nhiệm vụ của bạn</h2><p class="form-intro">Một phiên đủ dài để tiến bộ, đủ ngắn để bắt đầu.</p>
+              <form id="focus-form">
+                <label class="form-label" for="focus-task">Nhiệm vụ</label><input class="text-input" id="focus-task" maxlength="100" placeholder="Ví dụ: Ôn chương Đại số" required>
+                <div class="focus-method-note" id="focus-method-note" hidden>Phương pháp áp dụng: <strong id="focus-method-label">Pomodoro</strong></div>
+                <fieldset class="duration-field"><legend class="form-label">Thời lượng</legend><div class="duration-options"><label><input type="radio" name="focus-duration" value="25" checked><span>25 <small>phút</small></span></label><label><input type="radio" name="focus-duration" value="50"><span>50 <small>phút</small></span></label><label><input type="radio" name="focus-duration" value="custom"><span>Tùy chỉnh</span></label></div></fieldset>
+                <label class="custom-duration" id="custom-duration-wrap" hidden for="custom-duration"><span>Thời lượng (1–180 phút)</span><input class="text-input" id="custom-duration" type="number" min="1" max="180" value="30"></label>
+                <button class="button button-primary button-wide" id="focus-start" type="submit">Bắt đầu tập trung</button>
+              </form>
+            </article>
+            <article class="panel timer-card" id="timer-card">
+              <div class="timer-state"><span class="timer-state-dot" id="timer-state-dot"></span><span id="timer-state">SẴN SÀNG</span></div>
+              <div class="timer-progress" id="timer-progress"><div class="timer-progress-inner"><span id="timer-task-label">CHỌN NHIỆM VỤ</span><strong id="timer-display">25:00</strong><small id="timer-progress-label">0% hoàn thành</small></div></div>
+              <p class="timer-task" id="timer-task">Tập trung vào điều quan trọng nhất.</p>
+              <div class="timer-controls" id="timer-controls"><button class="button button-primary" id="timer-main-action" type="button" disabled>Bắt đầu</button></div>
+              <p class="timer-help" id="timer-help">Các phiên từ 15 phút trở lên được tính vào mục tiêu và thành tích.</p>
+            </article>
+          </div>
+          <article class="panel history-panel"><div class="section-heading"><div><p class="panel-kicker">LỊCH SỬ TẬP TRUNG</p><h2>Các phiên gần đây</h2></div><span class="range-label" id="focus-session-count">0 phiên</span></div><div id="focus-history" class="history-list"></div></article>
+        </section>
+
+        <section class="page placeholder-page" id="page-tasks" aria-labelledby="tasks-title" hidden>
+          <div class="welcome-row"><div><p class="eyebrow">QUẢN LÝ CÔNG VIỆC</p><h1 id="tasks-title">Tasks</h1><p class="page-description">Tập trung vào việc quan trọng nhất và giữ nhịp từng ngày.</p></div></div>
+          <div class="tasks-layout">
+            <article class="panel task-form-panel">
+              <div class="section-heading"><div><p class="panel-kicker">THÊM VIỆC MỚI</p><h2>Việc cần làm</h2></div></div>
+              <form id="task-form">
+                <label class="form-label" for="task-title">Tên công việc</label>
+                <input class="text-input" id="task-title" maxlength="120" placeholder="Ví dụ: Ôn lại bài 5 chương 2" required>
+                <div class="habit-form-row">
+                  <label class="form-label" for="task-priority">Mức độ ưu tiên</label>
+                  <select class="text-input" id="task-priority"><option value="high">Cao</option><option value="medium" selected>Trung bình</option><option value="low">Thấp</option></select>
+                </div>
+                <button class="button button-primary button-wide" type="submit">Thêm việc</button>
+              </form>
+            </article>
+            <article class="panel task-list-panel">
+              <div class="section-heading"><div><p class="panel-kicker">DANH SÁCH</p><h2>Công việc của bạn</h2></div><span class="range-label" id="task-progress-label">0 việc</span></div>
+              <div id="task-list" class="task-list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="page placeholder-page" id="page-explore" aria-labelledby="explore-title" hidden>
+          <div class="welcome-row"><div><p class="eyebrow">KHÁM PHÁ PHƯƠNG PHÁP HỌC</p><h1 id="explore-title">Explore</h1><p class="page-description">Chọn phương pháp học phù hợp, hiểu mục tiêu và áp dụng ngay vào phiên tập trung.</p></div></div>
+          <div class="explore-shell">
+            <aside class="panel explore-sidebar">
+              <div class="section-heading"><div><p class="panel-kicker">TÌM PHƯƠNG PHÁP</p><h2>Phổ biến</h2></div></div>
+              <div class="explore-search-wrap"><input class="text-input" id="explore-search" type="search" placeholder="Tìm phương pháp..."></div>
+              <div class="explore-filters" aria-label="Bộ lọc phương pháp">
+                <button class="filter-btn active" type="button" data-filter="all">Tất cả</button>
+                <button class="filter-btn" type="button" data-filter="Ghi nhớ">Ghi nhớ</button>
+                <button class="filter-btn" type="button" data-filter="Hiểu sâu">Hiểu sâu</button>
+                <button class="filter-btn" type="button" data-filter="Luyện tập">Luyện tập</button>
+                <button class="filter-btn" type="button" data-filter="Quản lý thời gian">Quản lý thời gian</button>
+              </div>
+              <div id="explore-method-list" class="method-list"></div>
+            </aside>
+
+            <article class="panel explore-detail">
+              <div class="explore-detail-top">
+                <p class="panel-kicker">PHƯƠNG PHÁP HỌC</p>
+                <h2 id="explore-method-name">Active Recall</h2>
+                <p id="explore-method-summary">Tự nhớ lại kiến thức thay vì chỉ đọc lại.</p>
+              </div>
+              <div class="explore-meta"><span id="explore-method-group">Ghi nhớ</span><span id="explore-method-duration">20–30 phút</span></div>
+              <div class="explore-copy">
+                <div class="explore-block"><h3>Nguyên lý</h3><p id="explore-principle"></p></div>
+                <div class="explore-block"><h3>Bằng chứng khoa học</h3><p id="explore-evidence"></p></div>
+                <div class="explore-block"><h3>Khi nên sử dụng</h3><p id="explore-usage"></p></div>
+                <div class="explore-block"><h3>Khi ít phù hợp</h3><p id="explore-limitations"></p></div>
+                <div class="explore-block"><h3>Hướng dẫn từng bước</h3><ol id="explore-steps"></ol></div>
+                <div class="explore-block"><h3>Ví dụ thực tế</h3><p id="explore-example"></p></div>
+                <div class="explore-block"><h3>Lỗi thường gặp</h3><ul id="explore-mistakes"></ul></div>
+                <div class="explore-block"><h3>Kết hợp với phương pháp khác</h3><p id="explore-combine"></p></div>
+              </div>
+              <div class="explore-actions">
+                <button class="button button-primary" id="apply-method-btn" type="button">Thực hiện phương pháp này</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="page placeholder-page" id="page-habits" aria-labelledby="habits-title" hidden>
+          <div class="welcome-row"><div><p class="eyebrow">XÂY DỰNG NHỊP ĐỘ BỀN VỮNG</p><h1 id="habits-title">Thói quen</h1><p class="page-description">Những hành động nhỏ, lặp lại đều đặn tạo nên thay đổi lớn.</p></div></div>
+          <div class="habit-layout">
+            <article class="panel habit-form-panel"><div class="section-heading"><div><p class="panel-kicker" id="habit-form-kicker">THÊM VÀO NHỊP ĐỘ</p><h2 id="habit-form-title">Tạo thói quen</h2></div></div><form id="habit-form"><label class="form-label" for="habit-name">Tên thói quen</label><input class="text-input" id="habit-name" maxlength="70" placeholder="Ví dụ: Đọc sách 20 phút" required><div class="habit-form-row"><label class="form-label" for="habit-icon">Biểu tượng</label><select class="text-input" id="habit-icon"><option value="✓">Đánh dấu</option><option value="A">Học tập</option><option value="B">Đọc sách</option><option value="C">Sức khỏe</option><option value="D">Sáng tạo</option></select></div><div class="habit-form-row"><label class="form-label" for="habit-color">Màu nhận diện</label><select class="text-input" id="habit-color"><option value="#ff8a3d">Cam</option><option value="#77c69d">Xanh lá</option><option value="#7da5e8">Xanh dương</option><option value="#b39bdd">Tím</option><option value="#df8f9a">Hồng đất</option></select></div><div class="habit-form-actions"><button class="button button-outline" id="habit-cancel-edit" type="button" hidden>Hủy sửa</button><button class="button button-primary" id="habit-submit" type="submit">Thêm thói quen</button></div></form></article>
+            <article class="panel habit-list-panel"><div class="section-heading"><div><p class="panel-kicker">TIẾN ĐỘ HÔM NAY</p><h2>Danh sách thói quen</h2></div><span class="range-label" id="habit-progress-label">0 / 0</span></div><div id="habit-list" class="habit-list"></div></article>
+          </div>
+          <article class="panel streak-detail"><div class="section-heading"><div><p class="panel-kicker">MỤC TIÊU FOCUS HẰNG NGÀY</p><h2 class="streak-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 2.5c1.2 5.3-4.6 6.7-4.6 11.5 0 1.3.6 2.4 1.7 3-.2-2.2 1-3.7 2.7-4.8 2.8 2.1 4.4 4.5 4.4 7.1a6.4 6.4 0 1 1-12.8 0c0-4.1 2.8-7.5 5.4-10-.2 3.1 1.1 3.7 1.1 3.7 0-4.2 2.5-6.7 2.1-10.5Z"/></svg>Streak</h2></div><span class="range-label" id="streak-best">Kỷ lục: 0 ngày</span></div><div class="streak-detail-content"><strong id="streak-current">0 ngày liên tiếp</strong><div class="week-days" id="habit-week"></div><p id="streak-message">Hoàn thành mục tiêu Focus trong ngày để bắt đầu streak.</p></div></article>
+        </section>
+
+        <section class="page placeholder-page" id="page-statistics" aria-labelledby="statistics-title" hidden>
+          <div class="welcome-row"><div><p class="eyebrow">TIẾN ĐỘ ĐƯỢC TẠO TỪ THỰC TẾ</p><h1 id="statistics-title">Thống kê</h1><p class="page-description">Quan sát quá trình tập trung và duy trì mục tiêu theo thời gian.</p></div></div>
+          <div class="stats-grid analytics-stats"><article class="stat-card"><div class="stat-heading">Focus hợp lệ</div><div class="stat-value" id="analytics-valid-count">0</div></article><article class="stat-card"><div class="stat-heading">Tổng Focus</div><div class="stat-value" id="analytics-total-time">0 <small>phút</small></div></article><article class="stat-card"><div class="stat-heading">Trung bình / phiên</div><div class="stat-value" id="analytics-average">0 <small>phút</small></div></article><article class="stat-card"><div class="stat-heading">Nhiệm vụ hoàn thành</div><div class="stat-value" id="analytics-completed-tasks">0</div></article><article class="stat-card"><div class="stat-heading">Hoàn thành thói quen</div><div class="stat-value" id="analytics-habit-rate">— <small>%</small></div></article></div>
+          <article class="panel statistics-panel"><div class="section-heading"><div><p class="panel-kicker">DỮ LIỆU THỰC TẾ</p><h2>Focus trong 7 ngày gần nhất</h2></div><span class="range-label" id="statistics-streak">Streak 0 · Kỷ lục 0</span></div><div id="statistics-chart" class="statistics-chart"></div></article>
+          <article class="panel statistics-panel"><div class="section-heading"><div><p class="panel-kicker">TỔNG HỢP</p><h2>Hoạt động theo ngày</h2></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Ngày</th><th>Focus</th><th>Phiên hợp lệ</th><th>Thói quen</th><th>Mục tiêu</th></tr></thead><tbody id="statistics-table"></tbody></table></div></article>
+        </section>
+
+        <section class="page placeholder-page" id="page-achievements" aria-labelledby="achievements-title" hidden>
+          <div class="welcome-row"><div><p class="eyebrow">GHI NHẬN NHỮNG BƯỚC TIẾN THẬT</p><h1 id="achievements-title">Thành tích</h1><p class="page-description">Mỗi cột mốc là dấu ấn của sự kiên trì.</p></div></div>
+          <div class="achievement-summary"><article class="panel level-card"><p class="panel-kicker">TIẾN TRÌNH CỦA BẠN</p><div class="level-line"><strong id="level-value">Level 1</strong><span id="xp-total">0 XP</span></div><div class="level-track"><span id="level-progress"></span></div><p id="level-next">0 / 100 XP đến Level 2</p></article><article class="panel level-card"><p class="panel-kicker">XP TÍCH LŨY</p><div class="level-line"><strong id="achievement-xp">0 XP</strong><span>Chỉ từ hoạt động thực tế</span></div><p>Phiên Focus hợp lệ +10 XP · Mỗi thói quen hoàn thành +5 XP · Đạt mục tiêu ngày +15 XP.</p></article></div>
+          <article class="panel achievement-panel"><div class="section-heading"><div><p class="panel-kicker">CỘT MỐC CỦA BẠN</p><h2>Thành tích</h2></div><span class="range-label" id="achievement-count">0 đã mở khóa</span></div><div id="achievement-list" class="achievement-list"></div></article>
+        </section>
+
+        <section class="page placeholder-page" id="page-settings" aria-labelledby="settings-title" hidden>
+          <div class="welcome-row"><div><p class="eyebrow">THIẾT LẬP KHÔNG GIAN CỦA BẠN</p><h1 id="settings-title">Cài đặt</h1><p class="page-description">Tùy chỉnh mục tiêu và quản lý dữ liệu của FocusForge.</p></div></div>
+          <div class="settings-grid"><article class="panel settings-panel"><p class="panel-kicker">MỤC TIÊU HẰNG NGÀY</p><h2>Thiết lập nhịp độ</h2><form id="settings-form"><label class="settings-field"><span>Mục tiêu Focus mỗi ngày (phút)</span><input class="text-input" id="daily-goal" type="number" min="15" max="600" step="5" required></label><label class="settings-field"><span>Thời lượng phiên mặc định (phút)</span><input class="text-input" id="default-duration" type="number" min="1" max="180" required></label><p class="settings-note">Một phiên được tính là hợp lệ khi đạt ít nhất 15 phút Focus thực tế. Mục tiêu streak không thấp hơn 15 phút.</p><button class="button button-primary" type="submit">Lưu cài đặt</button></form></article>
+          <article class="panel settings-panel"><p class="panel-kicker">SAO LƯU VÀ KHÔI PHỤC</p><h2>Dữ liệu của bạn</h2><p class="settings-note">Xuất dữ liệu để sao lưu hoặc nhập tệp FocusForge JSON hợp lệ. Dữ liệu hiện tại chỉ được thay thế sau khi kiểm tra tệp thành công.</p><div class="settings-actions"><button class="button button-outline" id="export-data" type="button">Xuất JSON</button><label class="button button-outline file-button" for="import-data">Nhập JSON</label><input id="import-data" type="file" accept="application/json,.json" hidden></div><div class="danger-zone"><div><strong>Xóa toàn bộ dữ liệu</strong><small>Phiên Focus, thói quen, XP và thành tích</small></div><button class="button button-danger" id="clear-data" type="button">Xóa dữ liệu</button></div></article></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal-backdrop" id="confirm-modal" hidden>
+    <section class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+      <span class="confirm-mark" aria-hidden="true">!</span><h2 id="confirm-title">Xác nhận thao tác</h2><p id="confirm-message"></p>
+      <div class="confirm-actions"><button class="button button-outline" id="confirm-cancel" type="button">Hủy</button><button class="button button-danger" id="confirm-series-delete" type="button" hidden>Delete Series</button><button class="button button-danger" id="confirm-accept" type="button">Xác nhận</button></div>
+    </section>
+  </div>
+  <div class="modal-backdrop" id="schedule-modal" hidden>
+    <section class="schedule-dialog" role="dialog" aria-modal="true" aria-labelledby="schedule-form-title">
+      <div class="section-heading"><div><p class="panel-kicker">PERSONAL CALENDAR</p><h2 id="schedule-form-title">Add Schedule</h2></div><button class="calendar-nav-button" id="schedule-close" type="button" aria-label="Close">×</button></div>
+      <form id="schedule-form">
+        <label class="form-label" for="schedule-title">Activity Title</label>
+        <input class="text-input" id="schedule-title" maxlength="120" required placeholder="e.g. Review Chapter 3">
+        <div class="schedule-form-grid">
+          <label class="schedule-field"><span>Date</span><input class="text-input" id="schedule-date" type="date" required></label>
+          <label class="schedule-field"><span>Activity Type</span><select class="text-input" id="schedule-type"><option>Study</option><option>Focus</option><option>Project</option><option>Exercise</option><option>Personal</option><option>Rest</option></select></label>
+          <label class="schedule-field"><span>Start Time</span><input class="text-input" id="schedule-start" type="time" required></label>
+          <label class="schedule-field"><span>End Time</span><input class="text-input" id="schedule-end" type="time" required></label>
+        </div>
+        <label class="form-label" for="schedule-notes">Notes <span class="muted">(optional)</span></label>
+        <textarea class="text-input schedule-notes" id="schedule-notes" maxlength="500" rows="3" placeholder="Add any details to remember"></textarea>
+        <label class="form-label" for="schedule-repeat">Repeat</label>
+        <select class="text-input" id="schedule-repeat"><option value="none">Does Not Repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="weekdays">Choose Weekdays</option></select>
+        <fieldset class="schedule-weekday-options" id="schedule-weekdays" hidden>
+          <legend class="form-label">Repeat On</legend>
+          <label><input type="checkbox" value="1">Mon</label><label><input type="checkbox" value="2">Tue</label><label><input type="checkbox" value="3">Wed</label><label><input type="checkbox" value="4">Thu</label><label><input type="checkbox" value="5">Fri</label><label><input type="checkbox" value="6">Sat</label><label><input type="checkbox" value="0">Sun</label>
+        </fieldset>
+        <fieldset class="schedule-edit-scope" id="schedule-edit-scope" hidden>
+          <legend class="form-label">Apply Changes To</legend>
+          <label><input type="radio" name="schedule-scope" value="occurrence" checked>This Occurrence</label>
+          <label><input type="radio" name="schedule-scope" value="series">Entire Series</label>
+        </fieldset>
+        <p class="schedule-form-error" id="schedule-form-error" role="alert" hidden></p>
+        <div class="confirm-actions"><button class="button button-outline" id="schedule-cancel" type="button">Cancel</button><button class="button button-primary" type="submit">Save Schedule</button></div>
+      </form>
+    </section>
+  </div>
+</body>
+</html>
