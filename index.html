@@ -45,6 +45,9 @@
         </button>
         <div class="topbar-context"><span class="context-dot"></span><span>Không gian cá nhân</span><span class="context-divider">/</span><strong id="current-page-label">Tổng quan</strong></div>
         <div class="topbar-right">
+          <button class="vent-trigger" id="vent-open-button" type="button" aria-label="Mở Góc xả căng thẳng" title="Góc xả căng thẳng">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 4.5C12.2 4.4 6.4 6.5 5.1 11c-.9 3.1 1.3 5.8 4.2 5.8 4.9 0 8.8-5.4 10.2-12.3Z"/><path d="M3.5 20.5c3-5 6.8-8.2 11.1-10.6"/></svg>
+          </button>
           <!-- Lo-fi and YouTube music player -->
           <div class="audio-widget" id="audio-widget">
             <button class="audio-widget-toggle" id="audio-widget-toggle" type="button" aria-label="Mở trình phát nhạc" aria-expanded="false" aria-controls="audio-popover">
@@ -385,6 +388,29 @@
     </main>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal-backdrop vent-modal-backdrop" id="vent-modal" hidden>
+    <section class="vent-dialog" role="dialog" aria-modal="true" aria-labelledby="vent-title" aria-describedby="vent-description">
+      <button class="vent-close" id="vent-close" type="button" aria-label="Đóng Góc xả căng thẳng">×</button>
+      <span class="vent-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M19.5 4.5C12.2 4.4 6.4 6.5 5.1 11c-.9 3.1 1.3 5.8 4.2 5.8 4.9 0 8.8-5.4 10.2-12.3Z"/><path d="M3.5 20.5c3-5 6.8-8.2 11.1-10.6"/></svg>
+      </span>
+      <p class="panel-kicker">MINDFUL RESET</p>
+      <h2 id="vent-title">Vent Space</h2>
+      <p class="vent-description" id="vent-description">Đây là khoảng riêng tư trên thiết bị này. Nội dung bạn viết sẽ không được lưu.</p>
+      <div class="vent-compose" id="vent-compose">
+        <label class="vent-prompt" for="vent-thought-input">Hãy gõ ra những suy nghĩ làm bạn phân tâm hoặc mệt mỏi lúc này...</label>
+        <textarea class="text-input vent-thought-input" id="vent-thought-input" maxlength="1200" rows="5"></textarea>
+        <button class="button button-primary vent-burn-button" id="vent-burn-button" type="button">Xóa tan / Burn</button>
+      </div>
+      <div class="vent-burn-stage" id="vent-burn-stage" hidden aria-live="polite">
+        <p class="vent-thought" id="vent-thought"></p>
+      </div>
+      <div class="vent-aftercare" id="vent-aftercare" hidden aria-live="polite">
+        <p class="vent-positive-message" id="vent-positive-message"></p>
+        <button class="button button-primary" id="vent-ready-button" type="button">Sẵn sàng Focus</button>
+      </div>
+    </section>
+  </div>
   <div class="modal-backdrop" id="confirm-modal" hidden>
     <section class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
       <span class="confirm-mark" aria-hidden="true">!</span><h2 id="confirm-title">Xác nhận thao tác</h2><p id="confirm-message"></p>

@@ -24,6 +24,13 @@
     { id: "local-rain", title: "Tiếng mưa thư giãn", artist: "Âm thanh thư giãn · MP3/OGG/WAV", category: "sleep", src: "music/rain.mp3" }
   ];
   const MIN_FOCUS_MINUTES = 15;
+  const VENT_MESSAGES = [
+    "Bạn đã tạo khoảng trống mới. Hãy bắt đầu từ một bước nhỏ.",
+    "Không cần giải quyết tất cả ngay bây giờ. Chỉ cần tập trung vào điều tiếp theo.",
+    "Hít một hơi thật chậm. Bạn có thể bắt đầu lại từ đây.",
+    "Một phút tập trung cũng là một khởi đầu đáng quý.",
+    "Bạn đã dành thời gian để lắng nghe chính mình. Giờ hãy chọn điều quan trọng nhất."
+  ];
   const HABIT_COLORS = ["#ff8a3d", "#77c69d", "#7da5e8", "#b39bdd", "#df8f9a"];
   const DATA_VERSION = 2;
   const PAGE_NAMES = {
@@ -2486,6 +2493,65 @@
     if (action?.onSeries) action.onSeries();
   }
 
+  let ventBurnTimer = 0;
+  let ventBurnInProgress = false;
+
+  function resetVentSpace() {
+    window.clearTimeout(ventBurnTimer);
+    ventBurnTimer = 0;
+    ventBurnInProgress = false;
+    $("#vent-compose").hidden = false;
+    $("#vent-thought-input").value = "";
+    $("#vent-thought-input").disabled = false;
+    $("#vent-burn-button").disabled = false;
+    $("#vent-burn-stage").hidden = true;
+    $("#vent-thought").textContent = "";
+    $("#vent-thought").classList.remove("is-burning");
+    $("#vent-aftercare").hidden = true;
+    $("#vent-positive-message").textContent = "";
+  }
+
+  function openVentSpace() {
+    resetVentSpace();
+    $("#vent-modal").hidden = false;
+    $("#vent-thought-input").focus();
+  }
+
+  function closeVentSpace({ readyForFocus = false } = {}) {
+    $("#vent-modal").hidden = true;
+    resetVentSpace();
+    if (readyForFocus) navigate("focus");
+    else $("#vent-open-button").focus();
+  }
+
+  function burnVentThought() {
+    if (ventBurnInProgress) return;
+    const thought = $("#vent-thought-input").value.trim();
+    if (!thought) {
+      showToast("Hãy viết một suy nghĩ trước khi xóa tan.", true);
+      $("#vent-thought-input").focus();
+      return;
+    }
+
+    ventBurnInProgress = true;
+    $("#vent-thought").textContent = thought;
+    $("#vent-compose").hidden = true;
+    $("#vent-burn-stage").hidden = false;
+    $("#vent-thought-input").value = "";
+    requestAnimationFrame(() => $("#vent-thought").classList.add("is-burning"));
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    ventBurnTimer = window.setTimeout(() => {
+      $("#vent-thought").textContent = "";
+      $("#vent-burn-stage").hidden = true;
+      $("#vent-positive-message").textContent = VENT_MESSAGES[Math.floor(Math.random() * VENT_MESSAGES.length)];
+      $("#vent-aftercare").hidden = false;
+      $("#vent-ready-button").focus();
+      ventBurnInProgress = false;
+      ventBurnTimer = 0;
+    }, reducedMotion ? 20 : 780);
+  }
+
   function resetHabitForm() {
     state.editingHabitId = null;
     $("#habit-form").reset();
@@ -2751,6 +2817,16 @@
     $$("[data-visualizer]").forEach((button) => {
       button.addEventListener("click", () => setFocusVisualizer(button.dataset.visualizer));
     });
+    $("#vent-open-button").addEventListener("click", openVentSpace);
+    $("#vent-close").addEventListener("click", () => closeVentSpace());
+    $("#vent-modal").addEventListener("click", (event) => {
+      if (event.target === $("#vent-modal")) closeVentSpace();
+    });
+    $("#vent-thought-input").addEventListener("keydown", (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") burnVentThought();
+    });
+    $("#vent-burn-button").addEventListener("click", burnVentThought);
+    $("#vent-ready-button").addEventListener("click", () => closeVentSpace({ readyForFocus: true }));
     $$('input[name="focus-duration"]').forEach((radio) => radio.addEventListener("change", updateDurationChoice));
     $("#task-form")?.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -2873,6 +2949,7 @@
       if (event.key === "Escape" && !$("#confirm-modal").hidden) closeConfirm(false);
       if (event.key === "Escape" && !$("#schedule-modal").hidden) closeScheduleForm();
       if (event.key === "Escape" && !$("#auth-modal").hidden) closeAuthModal();
+      if (event.key === "Escape" && !$("#vent-modal").hidden) closeVentSpace();
     });
   }
 
