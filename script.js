@@ -17,10 +17,10 @@
   const FIREBASE_SDK_VERSION = "10.8.0";
   // Lo-fi Player & Ambient Sounds: users only need to edit these local audio lists.
   const LOCAL_TRACKS = [
-    { id: "local-chill-01", title: "Quiet Afternoon", artist: "FocusForge", category: "chill", src: "audio/lofi/lofi-01.mp3" },
-    { id: "local-coffee-01", title: "Coffee Break", artist: "FocusForge", category: "coffee", src: "audio/lofi/lofi-02.mp3" },
-    { id: "local-sleep-01", title: "Soft Night", artist: "FocusForge", category: "sleep", src: "audio/lofi/lofi-03.mp3" },
-    { id: "local-study-01", title: "Deep Work", artist: "FocusForge", category: "study", src: "audio/lofi/lofi-04.mp3" }
+    { id: "local-chill-01", title: "Quiet Afternoon", artist: "Nhạc cục bộ · MP3/OGG/WAV", category: "chill", src: "music/quiet-afternoon.mp3" },
+    { id: "local-coffee-01", title: "Coffee Break", artist: "Nhạc cục bộ · MP3/OGG/WAV", category: "coffee", src: "music/coffee-break.mp3" },
+    { id: "local-sleep-01", title: "Soft Night", artist: "Nhạc cục bộ · MP3/OGG/WAV", category: "sleep", src: "music/soft-night.mp3" },
+    { id: "local-study-01", title: "Deep Work", artist: "Nhạc cục bộ · MP3/OGG/WAV", category: "study", src: "music/deep-work.mp3" }
   ];
   const LOCAL_AMBIENT = [
     { id: "local-rain", title: "Tiếng mưa", src: "audio/ambient/rain.mp3" },
@@ -81,14 +81,21 @@
     activityYear: new Date().getFullYear(),
     activitySelectedDate: localDate(),
     firebase: null,
+    firebaseInitPromise: null,
+    firebaseError: "",
     user: null,
     authBusy: false,
+    cloudLoading: false,
+    cloudError: "",
     authGeneration: 0,
     authUnsubscribe: null,
     cloudUnsubscribe: null,
     cloudReady: false,
     cloudSaveTimeout: 0,
-    cloudContentSignature: ""
+    cloudContentSignature: "",
+    cloudSessionIds: new Set(),
+    cloudProfileSnapshot: null,
+    cloudSessionSnapshot: null
   };
 
   function localDate(date = new Date()) {
@@ -432,7 +439,7 @@
     return Array.from(merged.values());
   }
 
-  function mergeProgress(localData, cloudData, cloudSchedules = []) {
+  function mergeProgress(localData, cloudData, cloudSchedules = [], localSchedules = state.calendarSchedules) {
     const mergeHabit = (localHabit, cloudHabit) => ({
       ...localHabit,
       ...cloudHabit,
@@ -443,7 +450,7 @@
     const activeHabitIds = new Set(habits.map((habit) => habit.id));
     const habitArchive = mergeRecords(localData.habitArchive, cloudData.habitArchive, mergeHabit)
       .filter((habit) => !activeHabitIds.has(habit.id));
-    const schedules = mergeRecords(state.calendarSchedules, cloudSchedules, (local, cloud) => ({
+    const schedules = mergeRecords(localSchedules, cloudSchedules, (local, cloud) => ({
       ...local,
       ...cloud,
       completedDates: Array.from(new Set([...local.completedDates, ...cloud.completedDates])).sort(),
@@ -477,6 +484,41 @@
     return state.firebase.collection(state.firebase.db, "users", user.uid, "focusSessions");
   }
 
+  function accountCacheKey(uid) {
+    return `focusforge.account-cache.${encodeURIComponent(uid)}`;
+  }
+
+  function archiveLocalAccount(uid) {
+    if (!uid) return;
+    const localData = localStorage.getItem(STORAGE_KEY);
+    const localCalendar = localStorage.getItem(CALENDAR_STORAGE_KEY);
+    if (localData === null || localCalendar === null) {
+      throw new Error("Không thể lưu bản cục bộ đầy đủ trước khi đổi tài khoản. Dữ liệu hiện tại chưa bị thay thế.");
+    }
+    localStorage.setItem(accountCacheKey(uid), JSON.stringify({ data: localData, calendar: localCalendar }));
+  }
+
+  function readAccountCache(uid) {
+    const rawCache = localStorage.getItem(accountCacheKey(uid));
+    if (rawCache === null) return null;
+    const cache = JSON.parse(rawCache);
+    if (!isPlainObject(cache) || typeof cache.data !== "string" || typeof cache.calendar !== "string") {
+      throw new Error("Bản lưu cục bộ của tài khoản chưa đầy đủ; dữ liệu hiện tại chưa bị thay thế.");
+    }
+    const rawData = cache.data;
+    const rawCalendar = cache.calendar;
+    const migrated = migrateData(JSON.parse(rawData));
+    const dataIssue = validateData(migrated.data);
+    if (dataIssue) throw new Error(`Bản lưu cục bộ của tài khoản không hợp lệ: ${dataIssue}`);
+    const calendar = JSON.parse(rawCalendar);
+    if (!isPlainObject(calendar) || calendar.version !== 1 || !Array.isArray(calendar.schedules)
+      || !calendar.schedules.every(validSchedule)
+      || new Set(calendar.schedules.map((schedule) => schedule.id)).size !== calendar.schedules.length) {
+      throw new Error("Bản lưu lịch cục bộ của tài khoản không hợp lệ.");
+    }
+    return { data: migrated.data, schedules: calendar.schedules };
+  }
+
   function cloudSessionRef(sessionId, user = state.user) {
     const encodedId = encodeURIComponent(sessionId);
     if (!encodedId || encodedId.length > 1400) throw new Error("ID phiên Focus vượt quá giới hạn lưu trữ đám mây.");
@@ -503,6 +545,10 @@
   }
 
   function writeLocalCloudState(appData, schedules, cloudSessionIds = appData.focusSessions.map((session) => session.id)) {
+    const previousData = state.data;
+    const previousSchedules = state.calendarSchedules;
+    const previousStorageReadFailed = state.storageReadFailed;
+    const previousCalendarReadFailed = state.calendarReadFailed;
     state.data = appData;
     state.calendarSchedules = schedules;
     state.storageReadFailed = false;
@@ -510,7 +556,14 @@
     const dataSaved = saveData({ syncCloud: false });
     const calendarSaved = saveCalendarSchedules({ syncCloud: false });
     if (!dataSaved || !calendarSaved) {
+      state.data = previousData;
+      state.calendarSchedules = previousSchedules;
+      state.storageReadFailed = previousStorageReadFailed;
+      state.calendarReadFailed = previousCalendarReadFailed;
+      if (dataSaved) saveData({ syncCloud: false });
       state.cloudReady = false;
+      renderAll();
+      renderCalendarAndSchedules();
       throw new Error("Không thể lưu bản đồng bộ an toàn vào bộ nhớ cục bộ.");
     }
     state.cloudSessionIds = new Set(cloudSessionIds);
@@ -541,7 +594,7 @@
     headerAvatar.title = user ? (user.email || user.displayName || "Tài khoản FocusForge") : "Đăng nhập FocusForge";
     $(".profile-copy strong").textContent = user ? (user.displayName || user.email || "Tài khoản FocusForge") : "Không gian cá nhân";
     $(".profile-copy small").textContent = user
-      ? (state.cloudReady ? "Đã kết nối đồng bộ" : "Đang tải dữ liệu đám mây…")
+      ? (state.cloudReady ? (state.cloudError ? "Lỗi đồng bộ · dữ liệu cục bộ giữ nguyên" : "Đã kết nối đồng bộ") : state.cloudLoading ? "Đang tải dữ liệu đám mây…" : "Chưa đồng bộ · chỉ lưu cục bộ")
       : "Dữ liệu trên thiết bị";
     $("#account-popover-name").textContent = user?.displayName || "Không gian cá nhân";
     $("#account-popover-email").textContent = user?.email || (user ? "Đã đăng nhập với Google" : "Chưa đăng nhập");
@@ -582,7 +635,7 @@
     $("#account-popover").hidden = true;
     $("#auth-avatar-button").setAttribute("aria-expanded", "false");
     $("#auth-modal").hidden = false;
-    setAuthError(state.firebase ? "" : "Đang kết nối dịch vụ xác thực…");
+    setAuthError(state.firebase ? "" : (state.firebaseError || "Đang kết nối dịch vụ xác thực…"));
     $("#auth-email").focus();
   }
 
@@ -671,31 +724,75 @@
   }
 
   async function persistCloudSnapshot() {
-    if (!state.firebase || !state.user || !state.cloudReady) return;
+    if (!state.firebase || !state.user || !state.cloudReady) return false;
     const user = state.user;
     const { appData, calendarSchedules, focusSessions } = cloudSyncSnapshot();
     const profileData = { schemaVersion: 1, appData, calendarSchedules };
     const signature = cloudSignature(state.data, calendarSchedules, focusSessions.map((session) => session.id));
     if (signature === state.cloudContentSignature
-      && focusSessions.every((session) => state.cloudSessionIds?.has(session.id))) return;
+      && focusSessions.every((session) => state.cloudSessionIds?.has(session.id))) return true;
 
     try {
+      const profileSize = new Blob([JSON.stringify(profileData)]).size;
+      if (profileSize > 700 * 1024) {
+        throw new Error("Tasks, lịch và dữ liệu tiến trình vượt ngưỡng an toàn 700 KiB cho một document. Phiên Focus đã được tách riêng; hãy giảm bớt dữ liệu Tasks/Lịch để tiếp tục đồng bộ.");
+      }
       const newSessions = focusSessions.filter((session) => !state.cloudSessionIds?.has(session.id));
       for (let offset = 0; offset < newSessions.length; offset += 400) {
+        if (state.user?.uid !== user.uid) return;
         const batch = state.firebase.writeBatch(state.firebase.db);
         const batchSessions = newSessions.slice(offset, offset + 400);
         batchSessions.forEach((session) => batch.set(cloudSessionRef(session.id, user), session));
         await batch.commit();
         batchSessions.forEach((session) => state.cloudSessionIds.add(session.id));
       }
-      const profileSize = new Blob([JSON.stringify(profileData)]).size;
-      if (profileSize > 700 * 1024) {
-        throw new Error("Tasks, lịch và dữ liệu tiến trình vượt ngưỡng an toàn 700 KiB cho một document. Phiên Focus đã được tách riêng; hãy giảm bớt dữ liệu Tasks/Lịch để tiếp tục đồng bộ.");
-      }
+      if (state.user?.uid !== user.uid) return;
       await state.firebase.setDoc(cloudDocumentRef(user), { ...profileData, updatedAt: new Date().toISOString() });
-      if (state.user?.uid === user.uid) state.cloudContentSignature = signature;
+      if (state.user?.uid === user.uid) {
+        state.cloudContentSignature = signature;
+        state.cloudError = "";
+        renderAuthState(user);
+      }
+      return true;
     } catch (error) {
-      if (state.user?.uid === user.uid) showToast(`Không thể đồng bộ lên Firestore. Dữ liệu vẫn được giữ cục bộ. ${error.message}`, true);
+      if (state.user?.uid === user.uid) {
+        state.cloudError = error.message;
+        renderAuthState(user);
+        showToast(`Không thể đồng bộ lên Firestore. Dữ liệu vẫn được giữ cục bộ. ${error.message}`, true);
+      }
+      return false;
+    }
+  }
+
+  async function clearCloudFocusSessions(user) {
+    if (!state.firebase || !user || state.user?.uid !== user.uid || !state.cloudReady) return true;
+    window.clearTimeout(state.cloudSaveTimeout);
+    state.cloudSaveTimeout = 0;
+    state.cloudReady = false;
+    state.cloudError = "";
+    if (state.cloudUnsubscribe) state.cloudUnsubscribe();
+    state.cloudUnsubscribe = null;
+    try {
+      const ids = Array.from(state.cloudSessionIds);
+      for (let offset = 0; offset < ids.length; offset += 400) {
+        const batch = state.firebase.writeBatch(state.firebase.db);
+        ids.slice(offset, offset + 400).forEach((id) => batch.delete(cloudSessionRef(id, user)));
+        await batch.commit();
+      }
+      if (state.user?.uid !== user.uid) return false;
+      state.cloudSessionIds.clear();
+      state.cloudContentSignature = "";
+      state.cloudReady = true;
+      if (!await persistCloudSnapshot()) {
+        state.cloudReady = false;
+        return false;
+      }
+      await handleAuthState(user);
+      return true;
+    } catch (error) {
+      state.cloudReady = false;
+      showToast(`Không thể xóa phiên Focus khỏi Firestore. Dữ liệu cục bộ đã được xóa nhưng bản sao đám mây chưa đổi. ${error.message}`, true);
+      return false;
     }
   }
 
@@ -711,14 +808,17 @@
       if (signature === state.cloudContentSignature) {
         state.cloudSessionIds = new Set(focusSessions.map((session) => session.id));
         return;
-        }
-        writeLocalCloudState(appData, calendarSchedules, focusSessions.map((session) => session.id));
-        state.cloudReady = true;
-        state.cloudContentSignature = signature;
+      }
+      writeLocalCloudState(appData, calendarSchedules, focusSessions.map((session) => session.id));
+      state.cloudReady = true;
+      state.cloudContentSignature = signature;
+      state.cloudError = "";
       localStorage.setItem(CLOUD_OWNER_KEY, user.uid);
       showToast("Đã nhận tiến trình mới từ Firestore.");
     } catch (error) {
       state.cloudReady = false;
+      state.cloudError = error.message;
+      renderAuthState(user);
       showToast(`Không thể áp dụng dữ liệu Firestore. Dữ liệu cục bộ được giữ nguyên. ${error.message}`, true);
     }
   }
@@ -733,6 +833,17 @@
     ]);
     if (state.user?.uid !== user.uid || state.authGeneration !== generation) return;
 
+    if (state.storageReadFailed || state.calendarReadFailed) {
+      throw new Error("Không thể xác thực đầy đủ dữ liệu cục bộ nên không thể thay thế hoặc chuyển tài khoản an toàn. Dữ liệu hiện tại chưa bị ghi đè.");
+    }
+    if (previousOwner && previousOwner !== user.uid) archiveLocalAccount(previousOwner);
+    let localCandidate = null;
+    if (!previousOwner || previousOwner === user.uid) {
+      localCandidate = { data: state.data, schedules: state.calendarSchedules };
+    } else if (previousOwner && previousOwner !== user.uid) {
+      localCandidate = readAccountCache(user.uid);
+    }
+
     const existingSessions = sessionSnapshot.docs.map((sessionDoc) => ({ id: sessionDoc.id, ...sessionDoc.data() }));
     if (!existingSessions.every((session) => isPlainObject(session))) {
       throw new Error("Có phiên Focus không hợp lệ trên Firestore.");
@@ -743,17 +854,14 @@
     let schedules;
     if (profileSnapshot.exists()) {
       const cloud = cloudPayloadData(profileSnapshot.data());
-      const cloudData = { ...cloud.appData, focusSessions: existingSessions };
+      const cloudData = { ...cloud.appData, focusSessions: mergeRecords(cloud.appData.focusSessions, existingSessions) };
       const issue = validateData(cloudData);
       if (issue) throw new Error(issue);
-      if (previousOwner && previousOwner !== user.uid) {
-        appData = cloudData;
-        schedules = cloud.calendarSchedules;
-      } else if (state.storageReadFailed || state.calendarReadFailed) {
+      if (!localCandidate) {
         appData = cloudData;
         schedules = cloud.calendarSchedules;
       } else {
-        const merged = mergeProgress(state.data, cloudData, cloud.calendarSchedules);
+        const merged = mergeProgress(localCandidate.data, cloudData, cloud.calendarSchedules, localCandidate.schedules);
         const mergedIssue = validateData(merged.data);
         if (mergedIssue) {
           showToast(`Dữ liệu cục bộ không thể hợp nhất an toàn; đang tải bản Firestore đã xác thực. ${mergedIssue}`, true);
@@ -764,30 +872,26 @@
           schedules = merged.schedules;
         }
       }
-    } else if (previousOwner && previousOwner !== user.uid) {
+    } else if (!localCandidate && previousOwner && previousOwner !== user.uid) {
       appData = { ...createDefaultData(), focusSessions: existingSessions };
       schedules = [];
     } else {
-      if (state.storageReadFailed || state.calendarReadFailed) {
+      if (!localCandidate) {
         throw new Error("Không thể khởi tạo tài khoản mới vì dữ liệu localStorage chưa đọc được. Bản cục bộ chưa bị ghi đè.");
       }
-      const localWithCloudSessions = { ...state.data, focusSessions: mergeRecords(state.data.focusSessions, existingSessions) };
+      const localWithCloudSessions = { ...localCandidate.data, focusSessions: mergeRecords(localCandidate.data.focusSessions, existingSessions) };
       appData = localWithCloudSessions;
-      schedules = state.calendarSchedules;
+      schedules = localCandidate.schedules;
     }
 
     const finalIssue = validateData(appData);
     if (finalIssue) throw new Error(finalIssue);
-    if (state.storageReadFailed || state.calendarReadFailed) {
-      state.storageReadFailed = false;
-      state.calendarReadFailed = false;
-    }
     writeLocalCloudState(appData, schedules, existingSessions.map((session) => session.id));
     localStorage.setItem(CLOUD_OWNER_KEY, user.uid);
     state.cloudReady = true;
     if (profileSnapshot.exists()) {
       const cloud = cloudPayloadData(profileSnapshot.data());
-      const cloudData = { ...cloud.appData, focusSessions: existingSessions };
+      const cloudData = { ...cloud.appData, focusSessions: mergeRecords(cloud.appData.focusSessions, existingSessions) };
       state.cloudContentSignature = cloudSignature(cloudData, cloud.calendarSchedules, existingSessions.map((session) => session.id));
     } else {
       state.cloudContentSignature = "";
@@ -829,6 +933,8 @@
     if (state.cloudUnsubscribe) state.cloudUnsubscribe();
     state.cloudUnsubscribe = null;
     state.user = user;
+    state.cloudError = "";
+    state.cloudLoading = Boolean(user);
     renderAuthState(user);
     if (!user) {
       $("#account-popover").hidden = true;
@@ -837,54 +943,68 @@
     }
     try {
       await loadUserCloudData(user, generation);
+      if (state.user?.uid === user.uid && state.authGeneration === generation) {
+        state.cloudLoading = false;
+        state.cloudError = "";
+        renderAuthState(user);
+      }
     } catch (error) {
       if (state.user?.uid === user.uid && state.authGeneration === generation) {
         state.cloudReady = false;
+        state.cloudLoading = false;
+        state.cloudError = error.message;
         renderAuthState(user);
         showToast(`Đăng nhập thành công nhưng chưa thể tải Firestore. Dữ liệu cục bộ không bị ghi lên đám mây. ${error.message}`, true);
       }
     }
   }
 
-  async function initializeFirebaseAuth() {
-    try {
-      const base = `https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}`;
-      const [appSdk, authSdk, firestoreSdk] = await Promise.all([
-        import(`${base}/firebase-app.js`),
-        import(`${base}/firebase-auth.js`),
-        import(`${base}/firebase-firestore.js`)
-      ]);
-      const app = appSdk.getApps().some((item) => item.name === "[DEFAULT]")
-        ? appSdk.getApp()
-        : appSdk.initializeApp(FIREBASE_CONFIG);
-      const auth = authSdk.getAuth(app);
-      const db = firestoreSdk.getFirestore(app);
-      state.firebase = {
-        auth,
-        db,
-        GoogleAuthProvider: authSdk.GoogleAuthProvider,
-        signInWithPopup: authSdk.signInWithPopup,
-        signInWithEmailAndPassword: authSdk.signInWithEmailAndPassword,
-        createUserWithEmailAndPassword: authSdk.createUserWithEmailAndPassword,
-        signOut: authSdk.signOut,
-        onAuthStateChanged: authSdk.onAuthStateChanged,
-        doc: firestoreSdk.doc,
-        collection: firestoreSdk.collection,
-        setDoc: firestoreSdk.setDoc,
-        getDoc: firestoreSdk.getDoc,
-        getDocs: firestoreSdk.getDocs,
-        onSnapshot: firestoreSdk.onSnapshot,
-        writeBatch: firestoreSdk.writeBatch
-      };
-      updateAuthAvailability();
-      state.authUnsubscribe = state.firebase.onAuthStateChanged(auth, (user) => {
-        void handleAuthState(user);
-      }, (error) => showToast(`Không thể xác định trạng thái đăng nhập: ${error.message}`, true));
-    } catch (error) {
-      updateAuthAvailability();
-      setAuthError(`Firebase chưa sẵn sàng: ${error.message}. Ứng dụng vẫn dùng dữ liệu cục bộ.`);
-      showToast(`Không thể tải Firebase SDK. Dữ liệu cục bộ vẫn hoạt động. ${error.message}`, true);
-    }
+  function initializeFirebaseAuth() {
+    if (state.firebaseInitPromise) return state.firebaseInitPromise;
+    state.firebaseInitPromise = (async () => {
+      try {
+        const base = `https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}`;
+        const [appSdk, authSdk, firestoreSdk] = await Promise.all([
+          import(`${base}/firebase-app.js`),
+          import(`${base}/firebase-auth.js`),
+          import(`${base}/firebase-firestore.js`)
+        ]);
+        const app = appSdk.getApps().some((item) => item.name === "[DEFAULT]")
+          ? appSdk.getApp()
+          : appSdk.initializeApp(FIREBASE_CONFIG);
+        const auth = authSdk.getAuth(app);
+        const db = firestoreSdk.getFirestore(app);
+        state.firebase = {
+          auth,
+          db,
+          GoogleAuthProvider: authSdk.GoogleAuthProvider,
+          signInWithPopup: authSdk.signInWithPopup,
+          signInWithEmailAndPassword: authSdk.signInWithEmailAndPassword,
+          createUserWithEmailAndPassword: authSdk.createUserWithEmailAndPassword,
+          signOut: authSdk.signOut,
+          onAuthStateChanged: authSdk.onAuthStateChanged,
+          doc: firestoreSdk.doc,
+          collection: firestoreSdk.collection,
+          setDoc: firestoreSdk.setDoc,
+          getDoc: firestoreSdk.getDoc,
+          getDocs: firestoreSdk.getDocs,
+          onSnapshot: firestoreSdk.onSnapshot,
+          writeBatch: firestoreSdk.writeBatch
+        };
+        state.firebaseError = "";
+        if (!$("#auth-modal").hidden) setAuthError("");
+        updateAuthAvailability();
+        state.authUnsubscribe = state.firebase.onAuthStateChanged(auth, (user) => {
+          void handleAuthState(user);
+        }, (error) => showToast(`Không thể xác định trạng thái đăng nhập: ${error.message}`, true));
+      } catch (error) {
+        state.firebaseError = `Firebase chưa sẵn sàng: ${error.message}. Ứng dụng vẫn dùng dữ liệu cục bộ.`;
+        updateAuthAvailability();
+        setAuthError(state.firebaseError);
+        showToast(`Không thể tải Firebase SDK. Dữ liệu cục bộ vẫn hoạt động. ${error.message}`, true);
+      }
+    })();
+    return state.firebaseInitPromise;
   }
 
   function scheduleOccursOn(schedule, dateKey) {
@@ -2508,17 +2628,24 @@
       title: "Xóa toàn bộ dữ liệu?",
       message: `Toàn bộ phiên Focus, thói quen, XP, thành tích và cài đặt tùy chỉnh${state.timer ? " cùng phiên Focus đang chạy" : ""} sẽ bị xóa khỏi thiết bị này. Không thể hoàn tác.`,
       accept: "Xóa toàn bộ",
-      onAccept: () => {
+      onAccept: async () => {
         try {
+          const user = state.user;
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(TIMER_KEY);
+          localStorage.removeItem(CALENDAR_STORAGE_KEY);
           state.storageReadFailed = false;
+          state.calendarReadFailed = false;
           state.data = createDefaultData();
+          state.calendarSchedules = [];
           state.timer = null;
-          saveData();
+          saveData({ syncCloud: false });
+          saveCalendarSchedules({ syncCloud: false });
           applyDefaultDurationChoice();
           renderAll();
-          showToast("Đã xóa dữ liệu FocusForge.");
+          renderCalendarAndSchedules();
+          const cloudCleared = await clearCloudFocusSessions(user);
+          if (cloudCleared) showToast("Đã xóa dữ liệu FocusForge trên thiết bị và tài khoản đang đăng nhập.");
         } catch (error) {
           showToast(`Không thể xóa dữ liệu: ${error.message}`, true);
         }
@@ -2534,6 +2661,40 @@
     $("#menu-toggle").addEventListener("click", () => {
       const open = $("#sidebar").classList.toggle("open");
       $("#menu-toggle").setAttribute("aria-expanded", String(open));
+    });
+    $("#auth-avatar-button").addEventListener("click", () => {
+      if (!state.user) {
+        openAuthModal();
+        return;
+      }
+      const popover = $("#account-popover");
+      const expanded = popover.hidden;
+      popover.hidden = !expanded;
+      $("#auth-avatar-button").setAttribute("aria-expanded", String(expanded));
+    });
+    $("#account-sign-in").addEventListener("click", openAuthModal);
+    $("#account-sign-out").addEventListener("click", signOutCurrentUser);
+    $("#auth-google").addEventListener("click", signInWithGoogle);
+    $("#auth-form").addEventListener("submit", submitEmailAuth);
+    $("#auth-mode-toggle").addEventListener("click", () => {
+      const registering = $("#auth-form").dataset.mode !== "register";
+      $("#auth-form").dataset.mode = registering ? "register" : "login";
+      $("#auth-title").textContent = registering ? "Tạo tài khoản" : "Đăng nhập";
+      $("#auth-submit").textContent = registering ? "Tạo tài khoản" : "Đăng nhập";
+      $("#auth-password").autocomplete = registering ? "new-password" : "current-password";
+      $("#auth-switch-label").textContent = registering ? "Đã có tài khoản?" : "Chưa có tài khoản?";
+      $("#auth-mode-toggle").textContent = registering ? "Đăng nhập" : "Tạo tài khoản";
+      setAuthError("");
+    });
+    $("#auth-close").addEventListener("click", closeAuthModal);
+    $("#auth-modal").addEventListener("click", (event) => {
+      if (event.target === $("#auth-modal")) closeAuthModal();
+    });
+    document.addEventListener("pointerdown", (event) => {
+      if (!$("#account-menu").contains(event.target)) {
+        $("#account-popover").hidden = true;
+        $("#auth-avatar-button").setAttribute("aria-expanded", "false");
+      }
     });
     window.addEventListener("hashchange", () => {
       const requested = location.hash.slice(1);
@@ -2661,6 +2822,7 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && !$("#confirm-modal").hidden) closeConfirm(false);
       if (event.key === "Escape" && !$("#schedule-modal").hidden) closeScheduleForm();
+      if (event.key === "Escape" && !$("#auth-modal").hidden) closeAuthModal();
     });
   }
 
@@ -2962,18 +3124,27 @@
       if (badLocal.has(track.id)) return;
       badLocal.add(track.id);
       localMusic.get(track.id)?.pause();
-      showToast(`“${track.title}” không tải được. Kiểm tra ${track.src}.`, true);
+      showToast(`Không phát được “${track.title}”. Kiểm tra file ${track.src} có tồn tại và dùng định dạng MP3, OGG hoặc WAV mà trình duyệt hỗ trợ.`, true);
       renderLocalTracks();
-      if (playing?.source !== "system" || playing.id !== track.id) return;
-      const next = localNext(track.id, 1);
-      if (next) void playLocal(next.id, 1);
-      else { playing = null; updateMini(); }
+      if (playing?.source === "system" && playing.id === track.id) {
+        playing = null;
+        updateMini();
+      }
     }
     async function playLocal(id, direction = 1) {
       let track = localTrack(id);
       if (!track) return;
       if (badLocal.has(id)) track = localNext(id, direction);
-      if (!track) return showToast("Không tải được file nhạc nào trong audio/lofi/.", true);
+      if (!track) return showToast("Không còn bài nhạc cục bộ khả dụng. Hãy thêm file vào thư mục music/ và cập nhật danh sách LOCAL_TRACKS.", true);
+      const mimeTypes = { mp3: "audio/mpeg", ogg: "audio/ogg", wav: "audio/wav" };
+      const extension = track.src.split(".").pop().toLowerCase();
+      const probe = new Audio();
+      if (!mimeTypes[extension] || !probe.canPlayType(mimeTypes[extension])) {
+        badLocal.add(track.id);
+        showToast(`Trình duyệt không hỗ trợ định dạng file của “${track.title}” (${extension || "không xác định"}). Dùng MP3, OGG hoặc WAV tương thích.`, true);
+        renderLocalTracks();
+        return;
+      }
       stopOtherMusic("system");
       const audio = localMusic.get(track.id);
       preferences.source = "system";
@@ -3345,7 +3516,7 @@
     }
 
     LOCAL_TRACKS.forEach((track) => {
-      const audio = new Audio(track.src); audio.preload = "none"; audio.volume = preferences.musicVolume;
+      const audio = new Audio(new URL(track.src, document.baseURI).href); audio.preload = "none"; audio.volume = preferences.musicVolume;
       audio.addEventListener("play", () => { playing = { source: "system", id: track.id }; preferences.source = "system"; updateMini(); renderLocalTracks(); });
       audio.addEventListener("pause", () => { updateMini(); renderLocalTracks(); });
       audio.addEventListener("timeupdate", updateMini); audio.addEventListener("loadedmetadata", updateMini);
@@ -3483,6 +3654,7 @@
     window.addEventListener("beforeunload", () => {
       if (state.timer) saveTimer();
     });
+    void initializeFirebaseAuth();
   }
 
   document.addEventListener("DOMContentLoaded", init, { once: true });
