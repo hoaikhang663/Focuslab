@@ -2835,6 +2835,7 @@
     let musicPlayer = null;
     let musicPlayerReady = false;
     let musicVideoId = "";
+    let musicPlaybackRequested = false;
     let youtubeApiPromise = null;
     let playing = null;
     let closeTimer = 0;
@@ -3046,8 +3047,10 @@
       saveSettings();
       updateMini();
     }
-    function stopOtherMusic(source) {
-      if (source !== "system") localMusic.forEach((audio) => audio.pause());
+    function stopOtherMusic(source, keepLocalId = null) {
+      localMusic.forEach((audio, id) => {
+        if (source !== "system" || id !== keepLocalId) audio.pause();
+      });
       if (source !== "youtube" && musicPlayerReady) {
         musicPlayer.pauseVideo();
         updateHeader();
@@ -3098,11 +3101,12 @@
         renderLocalTracks();
         return;
       }
-      stopOtherMusic("system");
+      musicPlaybackRequested = false;
+      playing = { source: "system", id: track.id };
+      stopOtherMusic("system", track.id);
       const audio = localMusic.get(track.id);
       preferences.source = "system";
       preferences.localTrackId = track.id;
-      playing = { source: "system", id: track.id };
       setSource("system");
       audio.volume = preferences.musicVolume;
       saveSettings();
@@ -3146,6 +3150,7 @@
       return host;
     }
     function youtubeError() {
+      if (!musicPlaybackRequested || playing?.source !== "youtube") return;
       const track = youtubeTrack(preferences.youtubeTrackId);
       if (!track) return;
       badYoutube.add(track.videoId);
@@ -3153,24 +3158,36 @@
       renderYoutubeTracks();
       const next = youtubeNext(track.id, 1);
       if (next) void playYoutube(next.id, 1);
-      else { playing = null; updateMini(); }
+      else { musicPlaybackRequested = false; playing = null; updateMini(); }
     }
     function makeMusicPlayer(YT, track) {
       const host = createHost("music");
       musicVideoId = track.videoId;
       musicPlayer = new YT.Player(host.id, {
         width: 1, height: 1, videoId: track.videoId,
-        playerVars: { autoplay: 1, controls: 0, disablekb: 1, playsinline: 1, rel: 0 },
+        playerVars: { autoplay: 0, controls: 0, disablekb: 1, playsinline: 1, rel: 0 },
         events: {
-          onReady: (event) => { musicPlayerReady = true; event.target.setVolume(Math.round(preferences.musicVolume * 100)); event.target.playVideo(); },
+          onReady: (event) => {
+            musicPlayerReady = true;
+            event.target.setVolume(Math.round(preferences.musicVolume * 100));
+            const selected = youtubeTrack(preferences.youtubeTrackId);
+            if (musicPlaybackRequested && playing?.source === "youtube" && selected) {
+              musicVideoId = selected.videoId;
+              event.target.loadVideoById(selected.videoId);
+            } else event.target.cueVideoById(musicVideoId);
+          },
           onStateChange: (event) => {
             const states = YT.PlayerState;
+            if (event.data === states.PLAYING && (!musicPlaybackRequested || playing?.source !== "youtube")) {
+              event.target.pauseVideo();
+              return;
+            }
             if (event.data === states.PLAYING) {
               const selected = youtubeTrack(preferences.youtubeTrackId);
               const actualTitle = event.target.getVideoData()?.title;
               if (selected && actualTitle && !selected.customTitle) { selected.title = actualTitle.slice(0, 200); savePlaylist(); renderYoutubeTracks(); }
             }
-            if (event.data === states.ENDED) skipMusic(1);
+            if (event.data === states.ENDED && musicPlaybackRequested && playing?.source === "youtube") skipMusic(1);
             renderYoutubeTracks();
             updateMini();
           },
@@ -3187,6 +3204,7 @@
       if (!track) return;
       if (badYoutube.has(track.videoId)) track = youtubeNext(id, direction);
       if (!track) return showToast("Không còn video YouTube nào có thể phát trong bộ lọc hiện tại.", true);
+      musicPlaybackRequested = true;
       stopOtherMusic("youtube");
       preferences.source = "youtube";
       preferences.youtubeTrackId = track.id;
@@ -3196,13 +3214,17 @@
       updateMini();
       try {
         const YT = await ensureYoutubeApi();
+        if (!musicPlaybackRequested || playing?.source !== "youtube" || playing.id !== track.id) return;
         if (!musicPlayer) makeMusicPlayer(YT, track);
+        else if (!musicPlayerReady) musicVideoId = track.videoId;
         else if (musicVideoId !== track.videoId) {
           musicVideoId = track.videoId;
           musicPlayer.loadVideoById(track.videoId);
         } else musicPlayer.playVideo();
       } catch (error) {
+        if (!musicPlaybackRequested || playing?.source !== "youtube" || playing.id !== track.id) return;
         showToast(error.message || String(error), true);
+        musicPlaybackRequested = false;
         playing = null;
         updateMini();
       }
@@ -3221,7 +3243,10 @@
     }
     function pauseMusic() {
       if (playing?.source === "system") localMusic.get(playing.id)?.pause();
-      else if (playing?.source === "youtube" && musicPlayerReady) musicPlayer.pauseVideo();
+      else if (playing?.source === "youtube") {
+        musicPlaybackRequested = false;
+        if (musicPlayerReady) musicPlayer.pauseVideo();
+      }
       updateMini();
     }
     function renderLocalTracks() {
