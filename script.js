@@ -61,6 +61,8 @@
     { id: "active-recall", name: "Active Recall", group: "Ghi nhớ", duration: "20–30 phút", recommendedMinutes: 25, summary: "Tự nhớ lại kiến thức thay vì chỉ đọc lại.", principle: "Khi bạn tự cố gắng gọi lại thông tin từ trí nhớ, bạn đang tạo ra các cú chạm để củng cố kiến thức. Phương pháp này thúc đẩy việc tái gọi chủ động, thay vì chỉ nhận biết thông tin khi xem lại tài liệu.", evidence: "Active Recall và Spaced Repetition có bằng chứng mạnh nhất cho ghi nhớ dài hạn trong học tập. Chúng phù hợp cho việc nắm vững khái niệm, công thức và từ vựng, đặc biệt khi được áp dụng đều đặn.", whenUse: "Dùng khi bạn muốn ôn lại kiến thức sau khi học xong một phần mới hoặc trước khi làm bài kiểm tra. Phù hợp với môn Toán, Lý, Hóa, Tin học và từ vựng/IELTS.", avoid: "Không nên dùng như một cách đọc lướt hoặc chỉ nhắc lại bằng miệng mà không kiểm tra đáp án. Nếu bạn chưa có nền tảng cơ bản, việc tự hỏi quá nhiều câu khó có thể khiến bạn mất động lực.", steps: ["Đóng tài liệu và đặt câu hỏi về chủ đề vừa học.", "Trả lời hoặc giải thích bằng trí nhớ trước khi xem lại đáp án.", "Kiểm tra kết quả và ghi lại phần sai hoặc thiếu sót.", "Lặp lại theo chu kỳ ngắn nhiều lần trong ngày và cuối tuần."], example: "Học Toán: giải một bài tập bằng giấy nháp, sau đó xem lại đáp án để tìm chỗ sai. Học IELTS: tự kể lại đoạn hội thoại hoặc nhắc lại từ vựng mà không nhìn tài liệu.", mistakes: ["Chỉ đọc lại đáp án mà không thử nhớ trước.", "Không ghi lại phần sai vì vậy lặp lại lỗi tương tự.", "Quá nhiều câu hỏi khó khiến mất thời gian mà không hiểu sâu."], combine: "Kết hợp tốt nhất với Spaced Repetition để tăng độ bền của trí nhớ và Practice Testing để kiểm tra mức độ nắm chắc thực tế." },
     { id: "spaced-repetition", name: "Spaced Repetition", group: "Ghi nhớ", duration: "15–25 phút", recommendedMinutes: 20, summary: "Ôn tập theo khoảng cách thời gian giúp ghi nhớ bền lâu hơn.", principle: "Nhớ lại ở các thời điểm cách xa dần sẽ giúp bạn vượt qua ngưỡng quên. Thay vì học một lần rồi bỏ quên, bạn ôn lại theo lịch để định hình trí nhớ dài hạn.", evidence: "Đây là một trong những kỹ thuật ghi nhớ có bằng chứng ủng hộ rõ ràng nhất. Kết quả mạnh hơn so với việc ôn liên tục trong cùng một buổi học, nhưng hiệu quả phụ thuộc vào cách thiết kế lịch ôn hợp lý.", whenUse: "Hữu ích khi học từ vựng, công thức, định nghĩa, sự kiện lịch sử hoặc các khái niệm cần ghi nhớ lâu dài.", avoid: "Không cần phải theo một công thức tối ưu cho mọi người. Lịch ôn nên linh hoạt theo mức độ nhớ và khối lượng kiến thức.", steps: ["Lập danh sách chủ đề hoặc flashcard cần nhớ.", "Ôn ngay trong ngày, sau 1–3 ngày, rồi 7 ngày, 14 ngày nếu cần.", "Tăng khoảng cách khi bạn đã nhớ tốt, hạ xuống khi bạn quên.", "Kết hợp với Active Recall để kiểm tra lại thay vì chỉ nhìn lại flashcard."], example: "Một lịch ôn gợi ý: ngày 1 học từ mới, ngày 3 ôn lại, ngày 7 ôn lại, ngày 14 ôn lại. Đây là mẫu khởi đầu, không phải công thức tuyệt đối.", mistakes: ["Ôn lại quá nhiều trong cùng một ngày mà không chia thời gian.", "Chỉ xem đáp án mà không thử nhớ trước.", "Không theo dõi mốc thời gian nên quên mất lịch ôn."], combine: "Rất hiệu quả khi kết hợp với flashcards và Active Recall, đặc biệt trong luyện từ vựng và các khái niệm thuộc cần nhớ lâu." },
     { id: "pomodoro", name: "Pomodoro", group: "Quản lý thời gian", duration: "25 phút + nghỉ 5 phút", recommendedMinutes: 25, summary: "Chia thời gian học thành chu kỳ tập trung và nghỉ ngắn giúp duy trì nhịp làm việc.", principle: "Pomodoro không phải kiểu học hiệu quả hơn mọi phương pháp; nó chủ yếu là công cụ quản lý thời gian để giảm cảm giác quá tải và giúp bạn bắt đầu từng phiên tập trung.", evidence: "Công cụ này hỗ trợ người học duy trì nhịp làm việc dài hơn mà ít cảm giác mệt mỏi, nhưng bằng chứng về hiệu suất học tập không đồng đều giữa người với người.", whenUse: "Khi bạn dễ mất tập trung, khó bắt đầu, hoặc cần chia công việc lớn thành các phiên thực hiện nhỏ hơn.", avoid: "Không nên ép phải giữ nguyên 25 phút nếu bạn đang ở trạng thái rất mệt hoặc cần duy trì luồng ý tưởng liên tục. Pomodoro nên được tùy chỉnh theo mục tiêu và cảm giác của bạn.", steps: ["Chọn một nhiệm vụ cụ thể và tạo một phiên tập trung cố định.", "Làm việc trong khoảng thời gian bạn đã đặt, ưu tiên không mở tab khác hoặc kiểm tra tin nhắn.", "Nghỉ 3–5 phút sau mỗi phiên, rồi tiếp tục chu kỳ mới.", "Sau 3–4 phiên cẩn thận, nghỉ dài hơn nếu cần."], example: "Một buổi ôn Toán có thể là 25 phút giải bài, 5 phút nghỉ, rồi tiếp tục 25 phút đọc lý thuyết. Bạn hoàn toàn có thể dùng 20 phút / 5 phút hoặc 30 phút / 10 phút nếu phù hợp.", mistakes: ["Không đặt mục tiêu rõ ràng mỗi phiên.", "Nghỉ quá dài khiến mất nhịp làm việc.", "Dùng Pomodoro như một yếu tố bắt buộc thay vì tùy biến theo độ tập trung."], combine: "Pomodoro phù hợp làm nền tảng cho Active Recall, Feynman hoặc Practice Testing, vì tạo nhịp làm việc rõ ràng và giảm cảm giác ngập đầu." },
+    { id: "deep-work", name: "Deep Work", group: "Quản lý thời gian", duration: "50 phút + nghỉ 10 phút", recommendedMinutes: 50, summary: "Tạo khối tập trung dài hơn cho nhiệm vụ cần suy nghĩ sâu.", principle: "Dành một khoảng thời gian ít gián đoạn cho nhiệm vụ đòi hỏi suy nghĩ sâu, sau đó nghỉ để phục hồi sự chú ý.", evidence: "Đây là cấu trúc tổ chức thời gian, không bảo đảm kết quả học tập cao hơn cho mọi người hoặc mọi nhiệm vụ.", whenUse: "Phù hợp với bài tập nhiều bước, viết bài hoặc chủ đề cần nối kết nhiều ý.", avoid: "Nếu khó duy trì tập trung dài, hãy chọn thời lượng ngắn hơn hoặc dùng Pomodoro.", steps: ["Chọn một nhiệm vụ cụ thể.", "Giảm các nguồn gây gián đoạn trong khối tập trung.", "Ghi lại điểm đang dở trước khi nghỉ.", "Quay lại nhiệm vụ sau khi nghỉ theo kế hoạch."], example: "Dành một khối để giải bài Toán nhiều bước, sau đó nghỉ ngắn trước khi kiểm tra lời giải.", mistakes: ["Đặt khối học dài nhưng không có mục tiêu rõ.", "Bỏ qua nghỉ dù đã mệt.", "Xem thời lượng dài như bằng chứng về hiệu quả."], combine: "Có thể kết hợp với Active Recall hoặc Practice Testing trong một khối tập trung." },
+    { id: "custom", name: "Tùy chỉnh", group: "Quản lý thời gian", duration: "Theo nhịp học bạn chọn", recommendedMinutes: 25, summary: "Tự chọn thời lượng tập trung và nghỉ phù hợp với kế hoạch.", principle: "Bạn thiết lập nhịp học và thời gian nghỉ dựa trên nhiệm vụ, sức tập trung và tổng thời lượng có sẵn.", evidence: "Đây là cách tổ chức phiên học, không phải bảo đảm hiệu quả hoặc một phương pháp đã được kiểm chứng riêng.", whenUse: "Khi bạn muốn tự quyết định thời lượng tập trung, nghỉ ngắn, nghỉ dài và số khối giữa các lần nghỉ dài.", avoid: "Tránh đặt thời lượng vượt quá khả năng tập trung hoặc bỏ nghỉ liên tục.", steps: ["Chọn tổng thời lượng buổi học.", "Đặt thời gian tập trung và nghỉ ngắn.", "Chọn số khối trước khi nghỉ dài.", "Xem trước kế hoạch và điều chỉnh trước khi bắt đầu."], example: "Bạn có thể chọn 30 phút tập trung, nghỉ 5 phút, và nghỉ dài sau mỗi 3 khối.", mistakes: ["Đặt tổng thời lượng không thực tế.", "Quên tính nghỉ vào tổng buổi học.", "Không để lại khoảng nghỉ phù hợp."], combine: "Có thể dùng cùng Active Recall, Interleaving hoặc Practice Testing." },
     { id: "interleaving", name: "Interleaving", group: "Luyện tập", duration: "25–40 phút", recommendedMinutes: 30, summary: "Xen kẽ các dạng bài hoặc chủ đề có liên quan để phát triển khả năng ứng dụng linh hoạt.", principle: "Thay vì chỉ làm đi làm lại cùng một kiểu bài, bạn xen kẽ các dạng bài, mạch kiến thức hoặc dạng câu hỏi liên quan. Điều này giúp bạn phân biệt kiểu nhiệm vụ và tái sử dụng kiến thức ở nhiều bối cảnh khác nhau.", evidence: "Interleaving là kỹ thuật rất hữu ích khi bạn đã có nền tảng cơ bản và cần làm quen với sự đa dạng của kiểu bài. Nó khác với việc đổi nhiệm vụ liên tục không có mục đích.", whenUse: "Phù hợp khi bạn đã học xong một số chủ đề rồi và muốn rèn luyện khả năng nhận diện dạng bài trong các tình huống khác nhau.", avoid: "Không nên dùng khi bạn còn đang mơ hồ về kiến thức nền tảng. Nếu bạn chưa hiểu cơ bản, việc xen kẽ quá nhiều dạng bài có thể khiến bạn lạc hướng.", steps: ["Nhóm các dạng bài hoặc chủ đề có liên quan nhau.", "Làm một dạng bài trong thời gian ngắn, rồi chuyển sang dạng khác.", "Sau khi hoàn thành, so sánh điểm giống và khác giữa các dạng bài.", "Tập trung vào việc tìm dạng bài liên quan chứ không phải nhảy qua nhiều nhiệm vụ không có kết nối."], example: "Với Toán, bạn có thể xen kẽ bài phương trình, hệ phương trình và bài toán thực tế trong cùng một buổi luyện. Với lập trình, có thể xen kẽ viết thuật toán, đọc code và sửa lỗi nhỏ.", mistakes: ["Đổi môn quá nhiều mà không có mục đích rõ ràng.", "Xen kẽ quá nhiều nhiệm vụ khiến không đủ thời gian cho dạng bài nào.", "Không tổng kết sau mỗi phần để nắm điểm giống và khác."], combine: "Interleaving hiệu quả khi kết hợp với Practice Testing, vì bạn vừa giải bài vừa xác định kiểu câu hỏi mà mình còn yếu." },
     { id: "feynman-technique", name: "Feynman Technique", group: "Hiểu sâu", duration: "20–30 phút", recommendedMinutes: 25, summary: "Giải thích bằng ngôn ngữ đơn giản để phát hiện lỗ hổng trong hiểu biết.", principle: "Nếu bạn muốn thật sự hiểu, hãy thử giải thích một khái niệm theo cách dễ hiểu với người không chuyên. Khi bạn không thể diễn giải rõ ràng, đó là dấu hiệu rằng bạn chưa nắm chắc kiến thức đó.", evidence: "Kỹ thuật này rất hiệu quả để kiểm tra sự hiểu biết sâu, nhưng nó không phải loại bằng chứng thống kê mạnh như Active Recall; nó tập trung vào sự chính xác trong cách giải thích và tự kiểm tra.", whenUse: "Hữu ích khi bạn đã học xong một khái niệm nhưng chưa chắc chắn mình có hiểu đúng hay không.", avoid: "Giải thích trôi chảy không đồng nghĩa với hiểu thực sự. Bạn vẫn cần xác minh từng bước và sửa sai nếu có.", steps: ["Chọn một khái niệm bạn muốn hiểu sâu.", "Giải thích nó bằng lời của mình với ngôn ngữ đơn giản, như đang dạy một người mới bắt đầu.", "Xác định chỗ bạn mắc lỡ hoặc dùng từ ngữ mơ hồ.", "Tìm lại nguồn kiến thức để sửa lỗ hổng và giải thích lại."], example: "Giải thích khái niệm điện trở trong Lý bằng câu nói đơn giản: 'Điện trở làm chậm dòng điện...'. Nếu bạn không thể giải thích rõ, hãy quay lại định nghĩa và ví dụ thực tế.", mistakes: ["Đọc lại bản ghi chú thay vì tự giải thích.", "Giả vờ hiểu vì đã nghe qua khái niệm.", "Không kiểm tra lại bằng nguồn thật, chỉ dựa vào cảm giác mình đã hiểu."], combine: "Cực kỳ thích hợp sau khi học xong một phần, rồi kết hợp với Active Recall để luyện lại trên giấy hoặc trong phiên Focus." },
     { id: "practice-testing", name: "Practice Testing", group: "Luyện tập", duration: "30–45 phút", recommendedMinutes: 35, summary: "Tự kiểm tra bằng câu hỏi và đề luyện tập để xác định phần còn yếu.", principle: "Tự làm bài kiểm tra giúp bạn nhận ra những phần chưa chắc chắn và liên kết kiến thức trong bộ nhớ. Đây là cách học chủ động và sát với bài thi thực tế hơn là chỉ đọc lại nội dung.", evidence: "Practice Testing có giá trị cao trong việc cải thiện khả năng recall, transfer, và kết nối thông tin. Nó rất hợp với các môn có tính chất bài tập, giải thích hoặc nhiều kiến thức cần áp dụng.", whenUse: "Dùng khi bạn sắp kiểm tra, làm đề cương hoặc muốn đánh giá xem mình nắm chắc ở mức nào.", avoid: "Không nên nhầm lẫn với việc làm bài chỉ để lấy điểm mà không phân tích lỗi. ", steps: ["Tạo câu hỏi hoặc đề tương tự với nội dung đã học.", "Làm bài trong điều kiện như thực tế, không nhìn đáp án.", "So sánh với đáp án và ghi lại lỗi của mình.", "Ôn lại phần yếu, rồi làm thêm một vòng khác để xem tiến bộ."], example: "Học Văn: làm bài luận ngắn trong 20 phút, sau đó đối chiếu với gợi ý và chỉnh sửa. Học Tin: làm đề tổng hợp không xem code gốc trước khi xem hướng dẫn.", mistakes: ["Làm bài mà không xem lại lỗi.", "Chỉ làm đề quá dễ, không có độ khó tương ứng.", "Sử dụng bài kiểm tra để tự chốt điểm thay vì để học."], combine: "Practice Testing kết hợp rất tốt với Active Recall và Spaced Repetition: bạn nhớ, bạn kiểm tra và bạn ôn lại ở khoảng cách hợp lý." }
@@ -88,6 +90,7 @@
     activePage: null,
     navigationTimeout: 0,
     navigationFrame: 0,
+    studyPlanSetupMethodId: null,
     calendarDate: "",
     selectedCalendarDate: "",
     calendarSchedules: [],
@@ -2804,7 +2807,10 @@
       empty.className = "task-empty";
       empty.textContent = "Không có phương pháp nào phù hợp với bộ lọc hiện tại.";
       list.append(empty);
+      state.studyPlanSetupMethodId = null;
       fillExploreDetail(METHODS[0]);
+      $("#explore-method-content").hidden = false;
+      $("#study-plan-setup").hidden = true;
       return;
     }
 
@@ -2817,6 +2823,7 @@
       item.addEventListener("click", () => {
         if (!state.data) return;
         state.data.selectedMethodId = method.id;
+        state.studyPlanSetupMethodId = null;
         saveData();
         renderExplore();
       });
@@ -2826,6 +2833,64 @@
     const selectedMethod = filteredMethods.find((method) => method.id === state.data?.selectedMethodId) || filteredMethods[0];
     if (state.data) state.data.selectedMethodId = selectedMethod.id;
     fillExploreDetail(selectedMethod);
+    const showingSetup = state.studyPlanSetupMethodId === selectedMethod.id;
+    $("#explore-method-content").hidden = showingSetup;
+    $("#study-plan-setup").hidden = !showingSetup;
+    if (showingSetup) renderStudyPlanSetup(selectedMethod);
+  }
+
+  function renderStudyPlanSetup(method) {
+    $("#study-plan-method-name").textContent = method.name;
+    const durationChoice = $('input[name="study-plan-duration"]:checked')?.value || "60";
+    const custom = durationChoice === "custom";
+    $("#study-plan-custom-wrap").hidden = !custom;
+    $("#study-plan-custom-settings").hidden = method.id !== "custom";
+    const totalMinutes = custom ? Number($("#study-plan-custom-minutes").value) : Number(durationChoice);
+    const customSettings = {
+      focusMinutes: Number($("#study-plan-focus-minutes").value),
+      shortBreakMinutes: Number($("#study-plan-short-break").value),
+      longBreakMinutes: Number($("#study-plan-long-break").value),
+      longBreakEvery: Number($("#study-plan-long-every").value)
+    };
+    const totalLabel = $("#study-plan-total");
+    const summary = $("#study-plan-summary");
+    const stagesList = $("#study-plan-stages");
+    const note = $("#study-plan-note");
+    const startButton = $("#study-plan-start");
+    stagesList.replaceChildren();
+    startButton.disabled = true;
+    totalLabel.textContent = Number.isInteger(totalMinutes) && totalMinutes > 0 ? `${totalMinutes} phút` : "Chưa hợp lệ";
+
+    try {
+      if (window.FocusForgeStudyPlanner?.createPlan === undefined) {
+        throw new Error("Không thể tải bộ lập kế hoạch phiên học.");
+      }
+      const plan = window.FocusForgeStudyPlanner.createPlan(method.id, totalMinutes, customSettings);
+      summary.textContent = `${plan.focusBlockCount} khối tập trung · ${plan.focusMinutes} phút học · ${plan.breakMinutes} phút nghỉ`;
+      plan.stages.forEach((stage) => {
+        const row = document.createElement("li");
+        const label = document.createElement("strong");
+        const detail = document.createElement("span");
+        label.textContent = stage.label;
+        detail.textContent = stage.type === "short-break" || stage.type === "long-break"
+          ? `${stage.minutes} phút · không tính vào thời gian Focus`
+          : stage.type === "review"
+            ? `${stage.minutes} phút · xem lại câu trả lời, tính vào thời gian học`
+            : `${stage.minutes} phút · tập trung`;
+        row.append(label, detail);
+        stagesList.append(row);
+      });
+      note.textContent = method.id === "active-recall"
+        ? "Chuẩn bị câu hỏi hoặc tài liệu của bạn trước; ứng dụng chưa tự tạo câu hỏi. Dự kiến hiển thị thông điệp động viên trong các giai đoạn nghỉ."
+        : ["interleaving", "feynman-technique", "practice-testing"].includes(method.id)
+          ? "Bản xem trước dùng khung thời gian chung 25/5; nội dung thực hành vẫn theo hướng dẫn của phương pháp đã chọn."
+          : plan.breakMinutes
+            ? "Dự kiến hiển thị thông điệp động viên ở các giai đoạn nghỉ. Kế hoạch này chỉ áp dụng trong phiên học hiện tại."
+            : "Thời lượng này chỉ đủ cho một khối học; không có giai đoạn nghỉ cuối.";
+    } catch (error) {
+      summary.textContent = error instanceof Error ? error.message : String(error);
+      note.textContent = "Hãy kiểm tra thời lượng và các giá trị tùy chỉnh.";
+    }
   }
 
   function renderTasks() {
@@ -2874,25 +2939,9 @@
   function applySelectedMethod() {
     const method = getSelectedMethod();
     if (!method) return;
-    const taskInput = $("#focus-task");
-    const taskMethodLabel = $("#focus-method-label");
-    const note = $("#focus-method-note");
-    const radioGroup = $$('input[name="focus-duration"]');
-    if (taskInput) taskInput.value = method.name;
-    if (taskMethodLabel) taskMethodLabel.textContent = method.name;
-    if (note) note.hidden = false;
-    if (radioGroup.length) {
-      radioGroup.forEach((radio) => {
-        radio.checked = Number(radio.value) === method.recommendedMinutes;
-      });
-      const customInput = $("#custom-duration");
-      if (customInput) customInput.value = String(method.recommendedMinutes);
-      $("#custom-duration-wrap").hidden = true;
-    }
-    state.data.selectedMethodId = method.id;
-    saveData();
-    navigate("focus");
-    showToast(`Đã áp dụng phương pháp ${method.name}.`);
+    state.studyPlanSetupMethodId = method.id;
+    renderExplore();
+    $("#study-plan-title").focus();
   }
 
   function renderAll() {
@@ -3413,6 +3462,21 @@
       renderExplore();
     }));
     $("#apply-method-btn")?.addEventListener("click", applySelectedMethod);
+    $$('input[name="study-plan-duration"]').forEach((radio) => radio.addEventListener("change", () => {
+      const method = METHODS.find((item) => item.id === state.studyPlanSetupMethodId);
+      if (method) renderStudyPlanSetup(method);
+    }));
+    ["study-plan-custom-minutes", "study-plan-focus-minutes", "study-plan-short-break",
+      "study-plan-long-break", "study-plan-long-every"].forEach((id) => {
+      $(`#${id}`)?.addEventListener("input", () => {
+        const method = METHODS.find((item) => item.id === state.studyPlanSetupMethodId);
+        if (method) renderStudyPlanSetup(method);
+      });
+    });
+    $("#study-plan-back")?.addEventListener("click", () => {
+      state.studyPlanSetupMethodId = null;
+      renderExplore();
+    });
     $("#activity-year").addEventListener("change", () => {
       const year = Number($("#activity-year").value);
       if (!Number.isInteger(year)) return;

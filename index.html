@@ -10,6 +10,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="stylesheet" href="style.css">
+  <script src="study-session.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body>
@@ -348,24 +349,74 @@
             </aside>
 
             <article class="panel explore-detail">
-              <div class="explore-detail-top">
-                <p class="panel-kicker">PHƯƠNG PHÁP HỌC</p>
-                <h2 id="explore-method-name">Active Recall</h2>
-                <p id="explore-method-summary">Tự nhớ lại kiến thức thay vì chỉ đọc lại.</p>
+              <div id="explore-method-content">
+                <div class="explore-detail-top">
+                  <p class="panel-kicker">PHƯƠNG PHÁP HỌC</p>
+                  <h2 id="explore-method-name">Active Recall</h2>
+                  <p id="explore-method-summary">Tự nhớ lại kiến thức thay vì chỉ đọc lại.</p>
+                </div>
+                <div class="explore-meta"><span id="explore-method-group">Ghi nhớ</span><span id="explore-method-duration">20–30 phút</span></div>
+                <div class="explore-copy">
+                  <div class="explore-block"><h3>Nguyên lý</h3><p id="explore-principle"></p></div>
+                  <div class="explore-block"><h3>Bằng chứng khoa học</h3><p id="explore-evidence"></p></div>
+                  <div class="explore-block"><h3>Khi nên sử dụng</h3><p id="explore-usage"></p></div>
+                  <div class="explore-block"><h3>Khi ít phù hợp</h3><p id="explore-limitations"></p></div>
+                  <div class="explore-block"><h3>Hướng dẫn từng bước</h3><ol id="explore-steps"></ol></div>
+                  <div class="explore-block"><h3>Ví dụ thực tế</h3><p id="explore-example"></p></div>
+                  <div class="explore-block"><h3>Lỗi thường gặp</h3><ul id="explore-mistakes"></ul></div>
+                  <div class="explore-block"><h3>Kết hợp với phương pháp khác</h3><p id="explore-combine"></p></div>
+                </div>
+                <div class="explore-actions">
+                  <button class="button button-primary" id="apply-method-btn" type="button">Thực hiện phương pháp này</button>
+                </div>
               </div>
-              <div class="explore-meta"><span id="explore-method-group">Ghi nhớ</span><span id="explore-method-duration">20–30 phút</span></div>
-              <div class="explore-copy">
-                <div class="explore-block"><h3>Nguyên lý</h3><p id="explore-principle"></p></div>
-                <div class="explore-block"><h3>Bằng chứng khoa học</h3><p id="explore-evidence"></p></div>
-                <div class="explore-block"><h3>Khi nên sử dụng</h3><p id="explore-usage"></p></div>
-                <div class="explore-block"><h3>Khi ít phù hợp</h3><p id="explore-limitations"></p></div>
-                <div class="explore-block"><h3>Hướng dẫn từng bước</h3><ol id="explore-steps"></ol></div>
-                <div class="explore-block"><h3>Ví dụ thực tế</h3><p id="explore-example"></p></div>
-                <div class="explore-block"><h3>Lỗi thường gặp</h3><ul id="explore-mistakes"></ul></div>
-                <div class="explore-block"><h3>Kết hợp với phương pháp khác</h3><p id="explore-combine"></p></div>
-              </div>
-              <div class="explore-actions">
-                <button class="button button-primary" id="apply-method-btn" type="button">Thực hiện phương pháp này</button>
+
+              <section class="study-plan-setup" id="study-plan-setup" aria-labelledby="study-plan-title" hidden>
+                <p class="panel-kicker">THIẾT LẬP PHIÊN HỌC</p>
+                <h2 id="study-plan-title" tabindex="-1">Hôm nay bạn muốn học trong bao lâu?</h2>
+                <p class="study-plan-method">Phương pháp: <strong id="study-plan-method-name"></strong></p>
+                <fieldset class="study-plan-duration">
+                  <legend class="form-label">Tổng thời lượng</legend>
+                  <div class="study-plan-presets">
+                    <label><input type="radio" name="study-plan-duration" value="25"><span>25 phút</span></label>
+                    <label><input type="radio" name="study-plan-duration" value="45"><span>45 phút</span></label>
+                    <label><input type="radio" name="study-plan-duration" value="60" checked><span>60 phút</span></label>
+                    <label><input type="radio" name="study-plan-duration" value="90"><span>90 phút</span></label>
+                    <label><input type="radio" name="study-plan-duration" value="120"><span>120 phút</span></label>
+                    <label><input type="radio" name="study-plan-duration" value="custom"><span>Tùy chỉnh</span></label>
+                  </div>
+                </fieldset>
+                <label class="study-plan-custom" id="study-plan-custom-wrap" for="study-plan-custom-minutes" hidden>
+                  <span>Thời lượng tùy chỉnh (1–600 phút)</span>
+                  <input class="text-input" id="study-plan-custom-minutes" type="number" min="1" max="600" value="60">
+                </label>
+                <label class="study-plan-goal" for="study-plan-goal">
+                  <span>Mục tiêu hoặc môn học <small>(không bắt buộc)</small></span>
+                  <input class="text-input" id="study-plan-goal" type="text" maxlength="100" placeholder="Ví dụ: Ôn chương Hàm số">
+                </label>
+                <div class="study-plan-custom-settings" id="study-plan-custom-settings" hidden>
+                  <h3>Tùy chỉnh nhịp học</h3>
+                  <div class="study-plan-custom-grid">
+                    <label for="study-plan-focus-minutes">Tập trung (phút)<input class="text-input" id="study-plan-focus-minutes" type="number" min="1" max="180" value="25"></label>
+                    <label for="study-plan-short-break">Nghỉ ngắn (phút)<input class="text-input" id="study-plan-short-break" type="number" min="1" max="60" value="5"></label>
+                    <label for="study-plan-long-break">Nghỉ dài (phút)<input class="text-input" id="study-plan-long-break" type="number" min="1" max="90" value="15"></label>
+                    <label for="study-plan-long-every">Nghỉ dài sau mỗi số phiên<input class="text-input" id="study-plan-long-every" type="number" min="2" max="8" value="4"></label>
+                  </div>
+                </div>
+                <div class="study-plan-preview" aria-live="polite">
+                  <div class="study-plan-preview-heading">
+                    <div><p class="panel-kicker">BẢN XEM TRƯỚC</p><h3>Kế hoạch dự kiến</h3></div>
+                    <span class="study-plan-total" id="study-plan-total"></span>
+                  </div>
+                  <p class="study-plan-summary" id="study-plan-summary"></p>
+                  <ol class="study-plan-stages" id="study-plan-stages"></ol>
+                  <p class="study-plan-note" id="study-plan-note"></p>
+                </div>
+                <div class="study-plan-actions">
+                  <button class="button button-outline" id="study-plan-back" type="button">Quay lại phương pháp</button>
+                  <button class="button button-primary" id="study-plan-start" type="button" disabled>Bắt đầu phiên học</button>
+                </div>
+                <p class="study-plan-pending">Điều phối timer và lưu phiên sẽ được bật ở giai đoạn tiếp theo.</p>
               </div>
             </article>
           </div>
