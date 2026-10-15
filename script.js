@@ -1215,13 +1215,62 @@
     }
   }
 
+  function sanitizeFirestoreDiagnostic(value) {
+    return String(value || "Unknown error")
+      .replace(/https?:\/\/\S+/gi, "[URL]")
+      .replace(/\bBearer\s+\S+/gi, "Bearer [REDACTED]")
+      .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, "[EMAIL]")
+      .replace(/\bAIza[0-9A-Za-z_-]{20,}\b/g, "[API KEY]")
+      .replace(/\beyJ[A-Za-z0-9_-]*\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, "[TOKEN]")
+      .replace(/(users\/)[^/\s?#]+/gi, "$1[UID]")
+      .slice(0, 300);
+  }
+
+  async function readFirestoreWithDiagnostics(operation, read) {
+    const startedAt = new Date();
+    const startedOnline = navigator.onLine;
+    const startedMonotonic = performance.now();
+    console.info("[Firestore diagnostic] read started", {
+      operation,
+      startedAt: startedAt.toISOString(),
+      navigatorOnline: startedOnline
+    });
+
+    try {
+      const result = await read();
+      console.info("[Firestore diagnostic] read completed", {
+        operation,
+        startedAt: startedAt.toISOString(),
+        endedAt: new Date().toISOString(),
+        durationMs: Math.round(performance.now() - startedMonotonic),
+        navigatorOnline: { started: startedOnline, ended: navigator.onLine },
+        outcome: "success"
+      });
+      return result;
+    } catch (error) {
+      const errorCode = typeof error?.code === "string"
+        ? error.code.replace(/[^a-zA-Z0-9/_-]/g, "").slice(0, 80) || "unknown"
+        : "unknown";
+      console.error("[Firestore diagnostic] read failed", {
+        operation,
+        startedAt: startedAt.toISOString(),
+        endedAt: new Date().toISOString(),
+        durationMs: Math.round(performance.now() - startedMonotonic),
+        navigatorOnline: { started: startedOnline, ended: navigator.onLine },
+        errorCode,
+        errorMessage: sanitizeFirestoreDiagnostic(error?.message)
+      });
+      throw error;
+    }
+  }
+
   async function loadUserCloudData(user, generation) {
     const previousOwner = localStorage.getItem(CLOUD_OWNER_KEY);
     const profileRef = cloudDocumentRef(user);
     const sessionsRef = cloudSessionsCollection(user);
     const [profileSnapshot, sessionSnapshot] = await Promise.all([
-      state.firebase.getDoc(profileRef),
-      state.firebase.getDocs(sessionsRef)
+      readFirestoreWithDiagnostics("getDoc(progress)", () => state.firebase.getDoc(profileRef)),
+      readFirestoreWithDiagnostics("getDocs(focusSessions)", () => state.firebase.getDocs(sessionsRef))
     ]);
     if (state.user?.uid !== user.uid || state.authGeneration !== generation) return;
 
