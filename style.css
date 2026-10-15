@@ -396,9 +396,17 @@ h1 { margin-bottom: 7px; font-size: clamp(22px, 2.6vw, 29px); font-weight: 650; 
 .activity-legend span:first-child { margin-right: 3px; }
 .activity-legend span:last-child { margin-left: 3px; }
 .activity-legend .activity-cell { flex: 0 0 11px; cursor: default; }
-.activity-detail { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px 15px; margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--line-soft); color: #898a91; font-size: 8px; }
-.activity-detail strong { color: #e4e1db; font-size: 9px; font-weight: 600; }
-.activity-level-label { margin-left: auto; color: #c79670; }
+.activity-detail { display: grid; gap: 14px; margin-top: 12px; padding-top: 13px; border-top: 1px solid var(--line-soft); color: var(--muted); font-size: 13px; line-height: 1.55; }
+.activity-detail > strong { color: var(--text); font-size: 15px; font-weight: 650; }
+.activity-detail-summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 16px; color: var(--muted); }
+.activity-level-label { color: var(--accent); }
+.activity-empty { margin: 0; color: var(--muted); font-size: 13px; }
+.activity-detail-group { min-width: 0; padding-top: 11px; border-top: 1px solid var(--line-soft); }
+.activity-detail-group h3 { margin: 0 0 9px; color: var(--text); font-size: 14px; font-weight: 650; }
+.activity-detail-group ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.activity-detail-group li { display: grid; min-width: 0; gap: 3px; padding: 10px 12px; border: 1px solid var(--line-soft); border-radius: 9px; background: var(--surface-raised); overflow-wrap: anywhere; }
+.activity-detail-group li strong { color: var(--text); font-size: 14px; font-weight: 600; }
+.activity-detail-group li span { color: var(--muted); font-size: 12px; line-height: 1.55; }
 @media (max-width: 720px) {
   .tasks-layout, .explore-shell { grid-template-columns: 1fr; }
   .calendar-schedule-grid { grid-template-columns: 1fr; }
@@ -727,6 +735,17 @@ h1 { margin-bottom: 8px; font-size: clamp(30px, 3vw, 36px); font-weight: 700; le
 .statistics-table td { color: #e0e0e4; }
 .settings-panel { padding: 25px; }
 .settings-panel > form > .button { min-height: 42px; }
+.settings-panel .sound-toggle-field, .settings-panel .sound-select-field, .settings-panel .sound-volume-field { color: var(--text); font-size: 14px; line-height: 1.5; }
+.settings-panel .sound-toggle-field { grid-template-columns: minmax(0,1fr) auto; }
+.settings-panel .sound-select-field { grid-template-columns: minmax(0,1fr) minmax(125px, .9fr); }
+.settings-panel .sound-volume-field { grid-template-columns: minmax(0,1fr) auto; }
+.sound-toggle-field input { width: 19px; height: 19px; accent-color: var(--accent); }
+.sound-select { min-height: 42px; font-size: 14px; text-align: left !important; }
+.sound-volume-field { align-items: center; }
+.sound-volume-field span { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 5px; grid-column: 1 / -1; color: var(--text); }
+.sound-volume-field output { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.sound-volume-field input[type="range"] { width: 100%; grid-column: 1 / -1; accent-color: var(--accent); }
+.settings-panel #sound-test { min-height: 40px; }
 .settings-actions { gap: 9px; margin: 17px 0 21px; }
 .settings-actions .button, .file-button { min-height: 39px; }
 .danger-zone { padding-top: 17px; }

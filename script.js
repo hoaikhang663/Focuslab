@@ -6,6 +6,9 @@
   const CALENDAR_STORAGE_KEY = "focusforge.calendar.v1";
   const CLOUD_OWNER_KEY = "focusforge.cloud-owner.v1";
   const THEME_STORAGE_KEY = "focusforge.theme.v1";
+  const SOUND_STORAGE_KEY = "focusforge.sound.v1";
+  const DEFAULT_SOUND_SETTINGS = { enabled: true, type: "bell", volume: 70 };
+  const SOUND_TYPES = ["bell", "chime", "digital", "gentle"];
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyAMOy4RdnOTYVDfMIWUntTmNcZ8oYiEuxM",
     authDomain: "focusforge-dce04.firebaseapp.com",
@@ -109,6 +112,14 @@
     cloudProfileSnapshot: null,
     cloudSessionSnapshot: null
   };
+  let soundSettings = { ...DEFAULT_SOUND_SETTINGS };
+  let soundStorageReadFailed = false;
+  let audioContext = null;
+  let timerAlarmSources = [];
+  let previewAlarmSources = [];
+  let timerAlarmScheduled = false;
+  let timerAlarmStartTime = 0;
+  let lastAudioError = "";
 
   function localDate(date = new Date()) {
     const year = date.getFullYear();
@@ -159,6 +170,196 @@
     toast.classList.add("show");
     window.clearTimeout(state.toastTimeout);
     state.toastTimeout = window.setTimeout(() => toast.classList.remove("show"), 4000);
+  }
+
+  function validSoundSettings(value) {
+    return isPlainObject(value) && typeof value.enabled === "boolean"
+      && SOUND_TYPES.includes(value.type) && Number.isInteger(value.volume)
+      && value.volume >= 0 && value.volume <= 100;
+  }
+
+  function loadSoundSettings() {
+    try {
+      const raw = localStorage.getItem(SOUND_STORAGE_KEY);
+      if (raw === null) return;
+      const stored = JSON.parse(raw);
+      if (!validSoundSettings(stored)) throw new Error("Cấu hình âm báo không hợp lệ.");
+      soundSettings = stored;
+    } catch (error) {
+      soundStorageReadFailed = true;
+      showToast(`Không thể đọc tùy chọn âm báo; dữ liệu cũ được giữ nguyên. ${error instanceof Error ? error.message : String(error)}`, true);
+    }
+  }
+
+  function saveSoundSettings() {
+    if (soundStorageReadFailed) {
+      showToast("Không thể lưu vì tùy chọn âm báo cũ không đọc được; dữ liệu cũ được giữ nguyên.", true);
+      return false;
+    }
+    try {
+      localStorage.setItem(SOUND_STORAGE_KEY, JSON.stringify(soundSettings));
+      return true;
+    } catch (error) {
+      showToast(`Không thể lưu tùy chọn âm báo: ${error instanceof Error ? error.message : String(error)}`, true);
+      return false;
+    }
+  }
+
+  function renderSoundSettings() {
+    $("#sound-enabled").checked = soundSettings.enabled;
+    $("#sound-type").value = soundSettings.type;
+    $("#sound-volume").value = String(soundSettings.volume);
+    $("#sound-volume-value").value = `${soundSettings.volume}%`;
+    $("#sound-volume-value").textContent = `${soundSettings.volume}%`;
+  }
+
+  async function prepareAudioContext() {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) throw new Error("Trình duyệt này không hỗ trợ Web Audio API.");
+      if (!audioContext || audioContext.state === "closed") audioContext = new AudioContextClass();
+      if (audioContext.state === "suspended") await audioContext.resume();
+      if (audioContext.state !== "running") throw new Error("Trình duyệt chưa cho phép phát âm thanh. Hãy tương tác với trang rồi thử lại.");
+      lastAudioError = "";
+      return audioContext;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message !== lastAudioError) showToast(`Không thể khởi tạo âm báo: ${message}`, true);
+      lastAudioError = message;
+      return null;
+    }
+  }
+
+  function stopAudioSources(sources) {
+    if (!audioContext) {
+      sources.length = 0;
+      return;
+    }
+    const now = audioContext.currentTime;
+    sources.splice(0).forEach((source) => {
+      try {
+        source.stop(now);
+        source.disconnect();
+      } catch (error) {
+        if (error.name !== "InvalidStateError") {
+          showToast(`Không thể dừng âm báo: ${error instanceof Error ? error.message : String(error)}`, true);
+        }
+      }
+    });
+  }
+
+  function stopTimerAlarm() {
+    timerAlarmScheduled = false;
+    timerAlarmStartTime = 0;
+    stopAudioSources(timerAlarmSources);
+  }
+
+  function stopPreviewAlarm() {
+    stopAudioSources(previewAlarmSources);
+  }
+
+  function stopAllAlarms() {
+    stopTimerAlarm();
+    stopPreviewAlarm();
+  }
+
+  function stopConfirmationAlarm() {
+    stopPreviewAlarm();
+    const alarmHasStarted = timerAlarmScheduled && audioContext
+      && audioContext.currentTime >= timerAlarmStartTime;
+    if (!state.timer || state.timer.status !== "running" || alarmHasStarted) stopTimerAlarm();
+  }
+
+  function scheduleAlarmSequence(type, volume, startAt, sources) {
+    if (!audioContext || volume <= 0) return;
+    const patterns = {
+      bell: { gap: 0.95, tones: [[0, 880, 0.62, "sine", 0.2], [0.035, 1320, 0.48, "sine", 0.12], [0.07, 1760, 0.34, "sine", 0.07]] },
+      chime: { gap: 1.12, tones: [[0, 659, 0.38, "sine", 0.16], [0.2, 784, 0.38, "sine", 0.16], [0.4, 988, 0.5, "sine", 0.17]] },
+      digital: { gap: 0.86, tones: [[0, 880, 0.15, "square", 0.12], [0.2, 660, 0.15, "square", 0.12], [0.4, 880, 0.15, "square", 0.12]] },
+      gentle: { gap: 1.2, tones: [[0, 523, 0.46, "sine", 0.13], [0.26, 659, 0.46, "sine", 0.13], [0.52, 784, 0.58, "sine", 0.14]] }
+    };
+    const pattern = patterns[type];
+    if (!pattern) throw new Error("Kiểu âm báo không được hỗ trợ.");
+    for (let repeat = 0; repeat < 3; repeat += 1) {
+      pattern.tones.forEach(([offset, frequency, duration, wave, amplitude]) => {
+        const oscillator = audioContext.createOscillator();
+        const envelope = audioContext.createGain();
+        const beginsAt = startAt + repeat * pattern.gap + offset;
+        const endsAt = beginsAt + duration;
+        oscillator.type = wave;
+        oscillator.frequency.setValueAtTime(frequency, beginsAt);
+        envelope.gain.setValueAtTime(0.0001, beginsAt);
+        envelope.gain.linearRampToValueAtTime(Math.max(0.0002, amplitude * volume), beginsAt + 0.018);
+        envelope.gain.exponentialRampToValueAtTime(0.0001, endsAt);
+        oscillator.connect(envelope);
+        envelope.connect(audioContext.destination);
+        oscillator.onended = () => {
+          oscillator.disconnect();
+          envelope.disconnect();
+          const index = sources.indexOf(oscillator);
+          if (index >= 0) sources.splice(index, 1);
+        };
+        sources.push(oscillator);
+        oscillator.start(beginsAt);
+        oscillator.stop(endsAt + 0.03);
+      });
+    }
+  }
+
+  function scheduleTimerAlarm() {
+    if (!soundSettings.enabled || !state.timer || state.timer.status !== "running"
+      || timerAlarmScheduled || !audioContext || audioContext.state !== "running") return;
+    timerAlarmScheduled = true;
+    const beginsAt = audioContext.currentTime + Math.max(0, (state.timer.phaseEndsAt - Date.now()) / 1000);
+    timerAlarmStartTime = beginsAt;
+    try {
+      scheduleAlarmSequence(soundSettings.type, soundSettings.volume / 100, beginsAt, timerAlarmSources);
+    } catch (error) {
+      stopTimerAlarm();
+      showToast(`Không thể lên lịch âm báo: ${error instanceof Error ? error.message : String(error)}`, true);
+    }
+  }
+
+  async function playSoundPreview() {
+    stopPreviewAlarm();
+    const context = await prepareAudioContext();
+    if (!context) return;
+    try {
+      scheduleAlarmSequence(soundSettings.type, soundSettings.volume / 100, context.currentTime + 0.04, previewAlarmSources);
+    } catch (error) {
+      stopPreviewAlarm();
+      showToast(`Không thể phát thử âm báo: ${error instanceof Error ? error.message : String(error)}`, true);
+    }
+  }
+
+  function updateSoundSettings() {
+    const next = {
+      enabled: $("#sound-enabled").checked,
+      type: $("#sound-type").value,
+      volume: Number($("#sound-volume").value)
+    };
+    if (!validSoundSettings(next)) {
+      showToast("Tùy chọn âm báo không hợp lệ.", true);
+      renderSoundSettings();
+      return;
+    }
+    soundSettings = next;
+    $("#sound-volume-value").value = `${next.volume}%`;
+    $("#sound-volume-value").textContent = `${next.volume}%`;
+    if (saveSoundSettings()) void refreshTimerAlarm();
+  }
+
+  async function refreshTimerAlarm() {
+    if (!soundSettings.enabled) {
+      stopTimerAlarm();
+      return;
+    }
+    if (state.timer?.status !== "running") return;
+    stopTimerAlarm();
+    const context = await prepareAudioContext();
+    if (context) {
+      scheduleTimerAlarm();
+    }
   }
 
   function allThemes() {
@@ -1695,12 +1896,71 @@
     const activity = activityForDate(dateKey);
     const heading = document.createElement("strong");
     heading.textContent = formatCalendarDate(dateKey, true);
+    const sessions = state.data.focusSessions
+      .filter((session) => localDate(new Date(session.endedAt)) === dateKey)
+      .sort((left, right) => Date.parse(left.startedAt) - Date.parse(right.startedAt));
+    const tasks = state.data.tasks.filter((task) => task.done && task.completedDate === dateKey);
+    const schedules = schedulesForDate(dateKey).filter((schedule) => schedule.completed);
+    const habits = [...state.data.habits, ...state.data.habitArchive]
+      .filter((habit) => habit.completions.includes(dateKey));
+    const hasActivity = sessions.length + tasks.length + schedules.length + habits.length > 0;
+    detail.replaceChildren(heading);
+    if (!hasActivity) {
+      const empty = document.createElement("p");
+      empty.className = "activity-empty";
+      empty.textContent = "Ngày này chưa có hoạt động nào được ghi lại.";
+      detail.append(empty);
+      return;
+    }
+
+    const summary = document.createElement("div");
+    summary.className = "activity-detail-summary";
     const metrics = document.createElement("span");
-    metrics.textContent = `${activity.focusMinutes} Focus minutes · ${activity.completedSessions} completed ${activity.completedSessions === 1 ? "session" : "sessions"} · ${activity.taskCount} ${activity.taskCount === 1 ? "task" : "tasks"} completed`;
+    metrics.textContent = `${activity.focusMinutes} phút Focus · ${activity.completedSessions} phiên hoàn thành · ${activity.taskCount} task hoàn thành`;
     const level = document.createElement("span");
     level.className = "activity-level-label";
-    level.textContent = activity.level === 0 ? "No recorded activity" : `Activity level ${activity.level} of 4`;
-    detail.replaceChildren(heading, metrics, level);
+    level.textContent = `Mức hoạt động ${activity.level} / 4`;
+    summary.append(metrics, level);
+    detail.append(summary);
+
+    const appendGroup = (title, entries) => {
+      if (!entries.length) return;
+      const group = document.createElement("section");
+      group.className = "activity-detail-group";
+      const groupHeading = document.createElement("h3");
+      groupHeading.textContent = title;
+      const list = document.createElement("ul");
+      entries.forEach(({ name, description }) => {
+        const item = document.createElement("li");
+        const itemName = document.createElement("strong");
+        itemName.textContent = name;
+        const itemDescription = document.createElement("span");
+        itemDescription.textContent = description;
+        item.append(itemName, itemDescription);
+        list.append(item);
+      });
+      group.append(groupHeading, list);
+      detail.append(group);
+    };
+    const localTime = (value) => new Intl.DateTimeFormat("vi-VN", { hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+    const duration = (milliseconds) => {
+      const totalMinutes = Math.max(0, Math.floor(milliseconds / 60000));
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      if (hours && minutes) return `${hours} giờ ${minutes} phút`;
+      if (hours) return `${hours} giờ`;
+      return `${minutes} phút`;
+    };
+    appendGroup("Phiên Focus", sessions.map((session) => ({
+      name: session.task,
+      description: `${localTime(session.startedAt)} – ${localTime(session.endedAt)} · ${duration(session.actualMs)} · ${session.status === "completed" ? "Hoàn thành" : "Kết thúc sớm"} · ${session.valid ? "Hợp lệ (từ 15 phút)" : "Dưới 15 phút"}`
+    })));
+    appendGroup("Task đã hoàn thành", tasks.map((task) => ({ name: task.title, description: "Đã hoàn thành trong ngày này" })));
+    appendGroup("Lịch đã hoàn thành", schedules.map((schedule) => ({
+      name: schedule.title,
+      description: `${schedule.startTime}–${schedule.endTime} · ${schedule.type}`
+    })));
+    appendGroup("Thói quen đã làm", habits.map((habit) => ({ name: habit.name, description: "Đã hoàn thành trong ngày này" })));
   }
 
   function renderActivityCalendar() {
@@ -1948,8 +2208,12 @@
   function setTimerState(status, remainingMs) {
     const timer = state.timer;
     if (!timer) return;
+    const audioReady = status === "running" && timer.status === "paused" && soundSettings.enabled
+      ? prepareAudioContext()
+      : null;
     const now = Date.now();
     if (status === "paused" && timer.status === "running") {
+      stopTimerAlarm();
       timer.accumulatedMs += Math.max(0, Math.min(now, timer.phaseEndsAt) - timer.phaseStartedAt);
       timer.remainingMs = Math.max(0, timer.phaseEndsAt - now);
       timer.status = "paused";
@@ -1961,9 +2225,10 @@
     }
     saveTimer();
     renderTimer();
+    if (audioReady) void audioReady.then((context) => { if (context) scheduleTimerAlarm(); });
   }
 
-  function startFocus(event) {
+  async function startFocus(event) {
     event.preventDefault();
     const form = $("#focus-form");
     if (!form.reportValidity()) return;
@@ -1978,6 +2243,7 @@
       showToast("Nhập nhiệm vụ và thời lượng từ 1 đến 180 phút.", true);
       return;
     }
+    const audioReady = soundSettings.enabled ? prepareAudioContext() : Promise.resolve(null);
     const now = Date.now();
     state.timer = {
       id: newId(),
@@ -1994,6 +2260,8 @@
       renderTimer();
       return;
     }
+    const context = await audioReady;
+    if (context) scheduleTimerAlarm();
     renderTimer();
     showToast("Đã bắt đầu phiên Focus. Hãy dành sự chú ý cho nhiệm vụ này.");
     if ("Notification" in window && Notification.permission === "default") {
@@ -2043,8 +2311,10 @@
       cancel: timer.status === "paused" ? "Tiếp tục phiên" : "Tiếp tục Focus",
       onCancel: () => {
         if (timer.status === "paused") setTimerState("running");
+        else if (timer.status === "running") void refreshTimerAlarm();
       },
       onAccept: () => {
+        stopTimerAlarm();
         const now = Date.now();
         timer.actualMs = Math.max(0, Math.floor(timerElapsed(now)));
         timer.endedAt = new Date(now).toISOString();
@@ -2058,6 +2328,7 @@
 
   function savePendingSession() {
     if (!state.timer || state.timer.status !== "pending-save") return;
+    stopAllAlarms();
     const timer = state.timer;
     if (state.data.focusSessions.some((session) => session.id === timer.id)) {
       state.timer = null;
@@ -2096,6 +2367,7 @@
   }
 
   function discardPendingSession() {
+    stopAllAlarms();
     state.timer = null;
     saveTimer();
     renderAll();
@@ -2572,6 +2844,7 @@
     renderExplore();
     renderCalendarAndSchedules();
     renderThemes();
+    renderSoundSettings();
     $("#daily-goal").value = state.data.settings.dailyGoalMinutes;
     $("#default-duration").value = state.data.settings.defaultDurationMinutes;
   }
@@ -2652,6 +2925,7 @@
   }
 
   function closeConfirm(accepted) {
+    stopConfirmationAlarm();
     const action = state.confirmAction;
     state.confirmAction = null;
     $("#confirm-modal").hidden = true;
@@ -2661,6 +2935,7 @@
   }
 
   function closeConfirmSeries() {
+    stopConfirmationAlarm();
     const action = state.confirmAction;
     state.confirmAction = null;
     $("#confirm-modal").hidden = true;
@@ -2945,6 +3220,11 @@
   }
 
   function bindEvents() {
+    document.addEventListener("pointerdown", () => {
+      if (state.timer?.status === "running" && soundSettings.enabled && !timerAlarmScheduled) {
+        void prepareAudioContext().then((context) => { if (context) scheduleTimerAlarm(); });
+      }
+    });
     $$("[data-page-link]").forEach((link) => link.addEventListener("click", (event) => {
       event.preventDefault();
       navigate(link.dataset.pageLink);
@@ -3114,6 +3394,10 @@
       else if (target.dataset.habitDelete) deleteHabit(target.dataset.habitDelete);
     });
     $("#settings-form").addEventListener("submit", saveSettings);
+    $("#sound-enabled").addEventListener("change", updateSoundSettings);
+    $("#sound-type").addEventListener("change", updateSoundSettings);
+    $("#sound-volume").addEventListener("input", updateSoundSettings);
+    $("#sound-test").addEventListener("click", playSoundPreview);
     $("#theme-list").addEventListener("click", (event) => {
       const card = event.target.closest("[data-theme-id]");
       if (card) selectTheme(card.dataset.themeId);
@@ -3741,6 +4025,7 @@
   function init() {
     initAudioWidget();
     loadThemeStore();
+    loadSoundSettings();
     applyTheme(allThemes().find((theme) => theme.id === themeStore.selectedId) || PRESET_THEMES[0]);
     $("#today-label").textContent = new Intl.DateTimeFormat("vi-VN", { weekday: "short", day: "numeric", month: "short" }).format(new Date());
     loadData();
