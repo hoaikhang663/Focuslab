@@ -13,4 +13,6 @@ The app stores profile data and calendar entries in `users/{uid}/data/progress`.
 
 On first sign-in, existing local data is merged by record ID with the account's cloud data and uploaded only after both Firestore reads finish. If the cloud is unavailable, local data remains available and no cloud write is started. Audio files and audio-player preferences are not synced.
 
-Run the app through a local web server such as VS Code Live Server. Firebase CDN modules and Google popup authentication require an HTTP(S) origin rather than directly opening `index.html` with `file://`.
+For the website, run the app through a local web server such as VS Code Live Server. Firebase CDN modules and Google popup authentication require an HTTP(S) origin rather than directly opening `index.html` with `file://`.
+
+For Windows desktop development, see [`ELECTRON_SETUP.md`](./ELECTRON_SETUP.md). Electron serves the unchanged app files on a localhost-only HTTP origin so Firebase CDN modules can load. The desktop origin uses a different port from Live Server, so its localStorage is separate; the app does not automatically copy local data between web and desktop.

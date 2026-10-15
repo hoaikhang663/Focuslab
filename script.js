@@ -119,6 +119,7 @@
   let previewAlarmSources = [];
   let timerAlarmScheduled = false;
   let timerAlarmStartTime = 0;
+  let timerAlarmEndTime = 0;
   let lastAudioError = "";
 
   function localDate(date = new Date()) {
@@ -251,7 +252,10 @@
   function stopTimerAlarm() {
     timerAlarmScheduled = false;
     timerAlarmStartTime = 0;
+    timerAlarmEndTime = 0;
     stopAudioSources(timerAlarmSources);
+    const silenceButton = $("#confirm-silence");
+    if (silenceButton) silenceButton.hidden = true;
   }
 
   function stopPreviewAlarm() {
@@ -270,7 +274,7 @@
     if (!state.timer || state.timer.status !== "running" || alarmHasStarted) stopTimerAlarm();
   }
 
-  function scheduleAlarmSequence(type, volume, startAt, sources) {
+  function scheduleAlarmSequence(type, volume, startAt, sources, durationSeconds = null) {
     if (!audioContext || volume <= 0) return;
     const patterns = {
       bell: { gap: 0.95, tones: [[0, 880, 0.62, "sine", 0.2], [0.035, 1320, 0.48, "sine", 0.12], [0.07, 1760, 0.34, "sine", 0.07]] },
@@ -280,7 +284,11 @@
     };
     const pattern = patterns[type];
     if (!pattern) throw new Error("Kiểu âm báo không được hỗ trợ.");
-    for (let repeat = 0; repeat < 3; repeat += 1) {
+    const lastToneEnd = Math.max(...pattern.tones.map(([offset, , duration]) => offset + duration + 0.03));
+    const repeatCount = durationSeconds === null
+      ? 3
+      : Math.max(1, Math.floor((durationSeconds - lastToneEnd) / pattern.gap) + 1);
+    for (let repeat = 0; repeat < repeatCount; repeat += 1) {
       pattern.tones.forEach(([offset, frequency, duration, wave, amplitude]) => {
         const oscillator = audioContext.createOscillator();
         const envelope = audioContext.createGain();
@@ -298,6 +306,12 @@
           envelope.disconnect();
           const index = sources.indexOf(oscillator);
           if (index >= 0) sources.splice(index, 1);
+          if (sources === timerAlarmSources && sources.length === 0) {
+            timerAlarmScheduled = false;
+            timerAlarmStartTime = 0;
+            timerAlarmEndTime = 0;
+            $("#confirm-silence").hidden = true;
+          }
         };
         sources.push(oscillator);
         oscillator.start(beginsAt);
@@ -308,12 +322,13 @@
 
   function scheduleTimerAlarm() {
     if (!soundSettings.enabled || !state.timer || state.timer.status !== "running"
-      || timerAlarmScheduled || !audioContext || audioContext.state !== "running") return;
+      || soundSettings.volume === 0 || timerAlarmScheduled || !audioContext || audioContext.state !== "running") return;
     timerAlarmScheduled = true;
     const beginsAt = audioContext.currentTime + Math.max(0, (state.timer.phaseEndsAt - Date.now()) / 1000);
     timerAlarmStartTime = beginsAt;
+    timerAlarmEndTime = beginsAt + 300;
     try {
-      scheduleAlarmSequence(soundSettings.type, soundSettings.volume / 100, beginsAt, timerAlarmSources);
+      scheduleAlarmSequence(soundSettings.type, soundSettings.volume / 100, beginsAt, timerAlarmSources, 300);
     } catch (error) {
       stopTimerAlarm();
       showToast(`Không thể lên lịch âm báo: ${error instanceof Error ? error.message : String(error)}`, true);
@@ -2914,6 +2929,9 @@
 
   function openConfirm({ title, message, accept = "Xác nhận", cancel = "Hủy", seriesLabel = "Delete Series", onAccept, onCancel, onSeries }) {
     state.confirmAction = { onAccept, onCancel, onSeries };
+    $("#confirm-silence").hidden = !(state.timer?.status === "pending-save"
+      && state.timer.completionType === "completed" && timerAlarmScheduled
+      && audioContext && audioContext.currentTime < timerAlarmEndTime);
     $("#confirm-series-delete").hidden = true;
     $("#confirm-title").textContent = title;
     $("#confirm-message").textContent = message;
@@ -2932,6 +2950,11 @@
     $("#confirm-series-delete").hidden = true;
     if (accepted && action?.onAccept) action.onAccept();
     if (!accepted && action?.onCancel) action.onCancel();
+  }
+
+  function silenceTimerAlarm() {
+    stopTimerAlarm();
+    showToast("Đã tắt âm báo kết thúc phiên.");
   }
 
   function closeConfirmSeries() {
@@ -3422,6 +3445,7 @@
     $("#confirm-accept").addEventListener("click", () => closeConfirm(true));
     $("#confirm-cancel").addEventListener("click", () => closeConfirm(false));
     $("#confirm-series-delete").addEventListener("click", closeConfirmSeries);
+    $("#confirm-silence").addEventListener("click", silenceTimerAlarm);
     $("#confirm-modal").addEventListener("click", (event) => {
       if (event.target === $("#confirm-modal")) closeConfirm(false);
     });
