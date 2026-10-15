@@ -28,7 +28,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outlin
 .sidebar { position: fixed; inset: 0 auto 0 0; z-index: 5; display: flex; width: 244px; flex-direction: column; padding: 25px 15px 17px; border-right: 1px solid var(--line-soft); background: color-mix(in srgb, var(--bg) 94%, var(--surface)); }
 .brand { display: flex; align-items: center; gap: 11px; padding: 0 8px 39px; text-decoration: none; }
 .brand-mark { display: grid; width: 36px; height: 36px; flex: 0 0 36px; place-items: center; border: 1px solid #ff9a5940; border-radius: 10px; background: #ff8a3d13; color: var(--accent); }
-.brand-mark svg { width: 23px; height: 23px; }
+.brand-mark img { width: 23px; height: 23px; }
 .brand-copy strong { display: block; font-size: 16px; font-weight: 700; letter-spacing: -.5px; }
 .brand-copy small { display: block; margin-top: 4px; color: #777880; font-size: 8px; font-weight: 700; letter-spacing: 1.25px; }
 .sidebar-label { padding: 0 10px; color: #696a72; font-size: 9px; font-weight: 700; letter-spacing: 1.15px; }

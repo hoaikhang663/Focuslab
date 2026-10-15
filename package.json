@@ -23,11 +23,16 @@
       "index.html",
       "style.css",
       "script.js",
+      "favicon.ico",
+      "favicon-16x16.png",
+      "favicon-32x32.png",
+      "assets/**/*",
       "electron/**/*",
       "music/**/*",
       "package.json"
     ],
     "win": {
+      "icon": "electron/focusforge-app.ico",
       "target": [
         {
           "target": "nsis",

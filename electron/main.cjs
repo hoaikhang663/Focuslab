@@ -16,6 +16,9 @@ const MIME_TYPES = new Map([
   [".html", "text/html; charset=utf-8"],
   [".css", "text/css; charset=utf-8"],
   [".js", "text/javascript; charset=utf-8"],
+  [".svg", "image/svg+xml"],
+  [".png", "image/png"],
+  [".ico", "image/x-icon"],
   [".mp3", "audio/mpeg"],
   [".ogg", "audio/ogg"],
   [".wav", "audio/wav"]
@@ -52,6 +55,9 @@ function resolveAppFile(urlPath, appRoot) {
   const segments = relativePath.split(/[\\/]/);
   if (segments.some((segment) => !segment || segment === "." || segment === "..")) return null;
   if (relativePath !== "index.html" && relativePath !== "style.css" && relativePath !== "script.js"
+    && relativePath !== "assets/focusforge-flame.svg"
+    && relativePath !== "favicon.ico" && relativePath !== "favicon-16x16.png"
+    && relativePath !== "favicon-32x32.png"
     && !(segments[0] === "music" && segments.length === 2)) return null;
 
   const extension = path.extname(relativePath).toLowerCase();
@@ -183,6 +189,7 @@ async function createMainWindow() {
     height: 940,
     minWidth: 900,
     minHeight: 640,
+    icon: path.join(appRoot, "electron", "focusforge-app.ico"),
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
