@@ -4096,6 +4096,9 @@
   }
 
   function init() {
+    if (window.focusForgeDesktop?.isDesktopApp) {
+      $(".desktop-download-panel").hidden = true;
+    }
     initAudioWidget();
     loadThemeStore();
     loadSoundSettings();
